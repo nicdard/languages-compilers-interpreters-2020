@@ -65,3 +65,17 @@ let count_change d n =
   |> List.map (List.sort (fun a b -> a - b))
   |> List.sort_uniq list_compare
   |> List.length
+
+(* Exercise 4 *)
+let count_sums x n =
+  let rec power acc b e = match e with
+    | 0 -> acc
+    | a -> power (acc * b) b (e - 1)
+  in let rec helper x n num =
+    let v = x - power 1 num n 
+    in match v with
+      | 0 -> 1
+      | a when a < 0 -> 0
+      | _ -> (helper v n (num + 1)) + helper x n (num + 1)
+  in helper x n 1
+    
