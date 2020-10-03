@@ -36,7 +36,32 @@ let print_pascal k =
   ))
  
 (* Exercise 3 *)
-(*
+let rec power_set = function
+  | [] -> [[]]
+  | x::xs ->
+    let ps = power_set xs
+    in ps @ List.map (fun ss -> x :: ss) ps
+
+let rec repeat n el =
+  match n with
+  | 0 -> []
+  | _ -> el::(repeat (n-1) el) 
+
 let count_change d n =
-  let valid = List.filter 
-  *)    
+  let sum l = List.fold_left (fun p next -> p + next) 0 l
+  in let list_compare l1 l2 =
+    let diff = List.length l1 - List.length l2
+    in match diff with
+    | 0 -> (List.fold_left2 (fun a b c -> match b - c with
+      | d when a == 0 -> d
+      | _ -> a
+    ) 0 l1 l2)
+    | _ -> diff
+  in List.filter ((>) n) d
+  |> List.map (fun it -> repeat (n / it) it)
+  |> List.flatten
+  |> power_set
+  |> List.filter (fun it -> n == (sum it))
+  |> List.map (List.sort (fun a b -> a - b))
+  |> List.sort_uniq list_compare
+  |> List.length
