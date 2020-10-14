@@ -45,7 +45,7 @@ type expr =
     | If of expr * expr * expr
     | Prim of string * expr * expr (* primitive operator *)
     | Let of string * expr * expr
-    | LetFun of string * expr * expr * expr
+    | LetFun of string * string * expr * expr
     | Call of expr * expr
 ```
 
@@ -58,7 +58,7 @@ We want the value notion: we have only integers and functionals types. Semantic 
 A closure is a data structure which maintain the information about the function declaration: function name, parameter name, body, environment (we have static scope). In the body function the parameter can occour freely, but we must differenciate it from the rest of non-local identifiers beacuse the parameter should be binded at call-time.
 
 ```OCaml 
-type 'v env = (string * 'v)
+type 'v env = (string * 'v) list
 ...
 ```
 
