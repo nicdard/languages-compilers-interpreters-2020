@@ -112,6 +112,7 @@ let rec eval (e: expr) (env: value env): value =
     let head = eval h env
     in let tail = eval t env
     in (match head, tail with
+      (** To properly enforce the homogeneous-type property we should attach a type information to the values **)
       | _, List [] -> List (head::[])
       | Int _, List ((Int i)::l) -> List (head::(Int i)::l)
       | Tuple _, List (Tuple (v1, v2, v3)::l) -> List (head::(Tuple (v1, v2, v3))::l)
