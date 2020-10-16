@@ -3,3 +3,5 @@ automata
 .vscode
 
 .idea
+**/out
+.iml

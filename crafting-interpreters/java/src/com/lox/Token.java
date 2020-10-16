@@ -29,3 +29,9 @@ public class Token {
  * a line and column to the user. Most tokens never appear in an error message. For those, the less time you spend
  * calculating position information ahead of time, the better.
  */
+
+/*
+ * Tokens are not entirely homogeneous either. Tokens for literals store the value but other kinds of lexemes don’t
+ * need that state. I have seen scanners that use different classes for literals and other kinds of lexemes, but I
+ * figured I’d keep things simpler.
+ */
