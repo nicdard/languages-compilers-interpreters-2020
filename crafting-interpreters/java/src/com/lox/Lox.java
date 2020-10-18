@@ -1,5 +1,8 @@
 package com.lox;
 
+import com.lox.ast.AstPrinter;
+import com.lox.ast.Expr;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -49,16 +52,24 @@ public class Lox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
 
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        if (hadError) return;
+        System.out.println(new AstPrinter().print(expression));
     }
 
     // TODO: show the offending line and the column (character) within the line
     // TODO FEATURE: move the error reporting to a separate interface and pass an obj to scanner and parser?
     public static void error(int line, String message) {
         report(line, "", message);
+    }
+    public static void error(Token token, String message) {
+        if (token.type == TokenType.EOF) {
+            report(token.line, " at end", message);
+        } else {
+            report(token.line, " at '" + token.lexeme + "'", message);
+        }
     }
 
     /**

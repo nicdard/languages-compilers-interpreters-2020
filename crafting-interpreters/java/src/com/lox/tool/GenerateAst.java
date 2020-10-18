@@ -20,7 +20,6 @@ public class GenerateAst {
             "Literal  : Object value",
             "Unary    : Token operator, Expr right"
         ));
-
     }
 
     private static void defineAst(
@@ -32,10 +31,11 @@ public class GenerateAst {
         PrintWriter printWriter = new PrintWriter(path, "UTF-8");
         printWriter.println("package com.lox.ast;");
         printWriter.println();
-        printWriter.println("import java.util.List;");
         printWriter.println("import com.lox.Token;");
         printWriter.println();
-        printWriter.println("abstract class " + baseName + "{");
+        printWriter.println("public abstract class " + baseName + " {");
+        printWriter.println();
+        defineVisitor(printWriter, baseName, types);
 
         // AST subclasses
         for (String type : types) {
@@ -44,6 +44,9 @@ public class GenerateAst {
             defineType(printWriter, baseName, className, fields);
         }
 
+        printWriter.println();
+        // The base accept method.
+        printWriter.println("\tabstract <R> R accept(Visitor<R> visitor);");
         printWriter.println("}");
         printWriter.close();
     }
@@ -55,9 +58,9 @@ public class GenerateAst {
         String fieldList
     ) {
         writer.println();
-        writer.println("\tstatic class " + className + " extends " + baseName + " {");
+        writer.println("\tpublic static class " + className + " extends " + baseName + " {");
         // Constructor.
-        writer.println("\t\t" + className + "(" + fieldList + ") {");
+        writer.println("\t\tpublic " + className + "(" + fieldList + ") {");
         // Store paramters in fields.
         String[] fields = fieldList.split(", ");
         for (String field : fields) {
@@ -65,10 +68,27 @@ public class GenerateAst {
             writer.println("\t\t\tthis." + name + " = " + name + ";");
         }
         writer.println("\t\t}");
+        // Visitor pattern.
+        writer.println();
+        writer.println("\t\t@Override");
+        writer.println("\t\t<R> R accept(Visitor<R> visitor) {");
+        writer.println("\t\t\treturn visitor.visit" + className + baseName + "(this);");
+        writer.println("\t\t}");
         // Fields.
         writer.println();
         for (String field : fields) {
             writer.println("\t\tfinal " + field + ";");
+        }
+        writer.println("\t}");
+    }
+
+    private static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
+        writer.println("\tinterface Visitor<R> {");
+        for (String type : types) {
+            String typeName = type.split(":")[0].trim();
+            writer.println("\t\tR visit" + typeName + baseName
+                    + "(" + typeName + " " + baseName.toLowerCase() + ");"
+            );
         }
         writer.println("\t}");
     }

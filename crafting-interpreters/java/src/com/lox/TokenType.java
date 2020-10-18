@@ -3,7 +3,7 @@ package com.lox;
 /**
  * The kind of a lexeme.
  * */
-enum TokenType {
+public enum TokenType {
 
     // Single character lexeme.
     LEFT_PAREN,
