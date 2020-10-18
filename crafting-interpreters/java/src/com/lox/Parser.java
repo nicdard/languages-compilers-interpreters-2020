@@ -21,6 +21,9 @@ class Parser {
         this.tokens = tokens;
     }
 
+    /**
+     * Starts recursive-descent parsing.
+     */
     Expr parse() {
         try {
             return expression();
