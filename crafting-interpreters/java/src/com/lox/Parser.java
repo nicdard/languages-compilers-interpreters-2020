@@ -9,7 +9,12 @@ class Parser {
 
     private static class ParseError extends RuntimeException {}
 
+    /**
+     * The tokens produced by the Scanner.
+     * Note: the last element is always the EOF token.
+     */
     private final List<Token> tokens;
+    /** The index of the current token. */
     private int current = 0;
 
     Parser(List<Token> tokens) {
