@@ -7,7 +7,15 @@ import java.util.List;
 /* https://craftinginterpreters.com/parsing-expressions.html */
 class Parser {
 
-    private static class ParseError extends RuntimeException {}
+    /**
+     * A light-weight exception used for synchronisation inside the Parser.
+     */
+    private static class ParseError extends RuntimeException {
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            return this;
+        }
+    }
 
     /**
      * The tokens produced by the Scanner.
@@ -115,11 +123,24 @@ class Parser {
         throw error(peek(), "Unexpected expression.");
     }
 
+    /**
+     * Consumes and return the current token if it matches the expected type,
+     * signals and throws an {@link ParseError} otherwise.
+     * @param type the expected type.
+     * @param message the message to be shown to the user if an error occurs.
+     * @return the current token.
+     */
     private Token consume(TokenType type, String message) {
         if (check(type)) return advance();
         throw error(peek(), message);
     }
 
+    /**
+     * Signals an error to the user.
+     * @param token the unexpected token.
+     * @param message the message for the user.
+     * @return a new ParseError to
+     */
     private ParseError error(Token token, String message) {
         Lox.error(token, message);
         return new ParseError();
@@ -147,6 +168,11 @@ class Parser {
         }
     }
 
+    /**
+     * Performs a lookahead on the tokens of length 1.
+     * @param types the set of token types to be tested against the current token.
+     * @return true if any of the input types matches the current token type, false if none matches.
+     */
     private boolean match(TokenType ...types) {
         for (TokenType type : types) {
             if (check(type)) {
@@ -157,23 +183,40 @@ class Parser {
         return false;
     }
 
+    /**
+     * @param type the expected token type.
+     * @return true if the expected token type matches the type of the current token
+     * and we did not reach the EOF.
+     */
     private boolean check(TokenType type) {
         return !isAtEnd() && peek().type == type;
     }
 
+    /**
+     * @return the current token and consumes it.
+     */
     private Token advance() {
         if (!isAtEnd()) ++this.current;
         return previous();
     }
 
+    /**
+     * @return the current token.
+     */
     private Token peek() {
         return this.tokens.get(current);
     }
 
+    /**
+     * @return true is the token is the last one in the list, i.e. EOF.
+     */
     private boolean isAtEnd() {
         return this.peek().type == TokenType.EOF;
     }
 
+    /**
+     * @return the previous token.
+     */
     private Token previous() {
         return this.tokens.get(current - 1);
     }
