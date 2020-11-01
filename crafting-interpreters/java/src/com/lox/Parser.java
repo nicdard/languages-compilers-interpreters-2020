@@ -41,7 +41,18 @@ class Parser {
     }
 
     private Expr expression() {
-        return comma();
+        return ternary();
+    }
+
+    private Expr ternary() {
+        Expr expression = comma();
+        if (match(TokenType.QUESTION_MARK)) {
+            Expr then = expression();
+            consume(TokenType.COLON, "Expect ':' after expression.");
+            Expr elseBranch = expression();
+            expression = new Expr.Ternary(expression, then, elseBranch);
+        }
+        return expression;
     }
 
     private Expr comma() {
@@ -130,7 +141,7 @@ class Parser {
      * @param message the message to be shown to the user if an error occurs.
      * @return the current token.
      */
-    private Token consume(TokenType type, String message) {
+    private Token consume(final TokenType type, final String message) {
         if (check(type)) return advance();
         throw error(peek(), message);
     }
@@ -141,7 +152,7 @@ class Parser {
      * @param message the message for the user.
      * @return a new ParseError to
      */
-    private ParseError error(Token token, String message) {
+    private ParseError error(final Token token, final String message) {
         Lox.error(token, message);
         return new ParseError();
     }
@@ -188,7 +199,7 @@ class Parser {
      * @return true if the expected token type matches the type of the current token
      * and we did not reach the EOF.
      */
-    private boolean check(TokenType type) {
+    private boolean check(final TokenType type) {
         return !isAtEnd() && peek().type == type;
     }
 

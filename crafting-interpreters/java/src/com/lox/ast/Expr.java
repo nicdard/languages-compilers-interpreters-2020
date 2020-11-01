@@ -5,10 +5,28 @@ import com.lox.Token;
 public abstract class Expr {
 
 	interface Visitor<R> {
+		R visitTernaryExpr(Ternary expr);
 		R visitBinaryExpr(Binary expr);
 		R visitGroupingExpr(Grouping expr);
 		R visitLiteralExpr(Literal expr);
 		R visitUnaryExpr(Unary expr);
+	}
+
+	public static class Ternary extends Expr {
+		public Ternary(Expr guard, Expr then, Expr elseBranch) {
+			this.guard = guard;
+			this.then = then;
+			this.elseBranch = elseBranch;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitTernaryExpr(this);
+		}
+
+		final Expr guard;
+		final Expr then;
+		final Expr elseBranch;
 	}
 
 	public static class Binary extends Expr {

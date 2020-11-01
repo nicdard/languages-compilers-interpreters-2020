@@ -1,6 +1,6 @@
-expression     → comma ;
-comma          → equality ( "," comma )*
-               | equality;
+expression     → ternary ;
+ternary        → comma ( "?" expression ":" expression )* ;
+comma          → equality ( "," comma )* ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;

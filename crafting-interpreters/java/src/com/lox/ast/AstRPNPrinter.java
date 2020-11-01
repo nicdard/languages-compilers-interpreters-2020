@@ -7,6 +7,14 @@ public class AstRPNPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitTernaryExpr(Expr.Ternary expr) {
+        return expr.guard.accept(this) + " "
+                + expr.then.accept(this) + " "
+                + expr.elseBranch.accept(this) + " "
+                + "?:";
+    }
+
+    @Override
     public String visitBinaryExpr(Expr.Binary expr) {
         return expr.left.accept(this) + " "
                 + expr.right.accept(this) + " "
