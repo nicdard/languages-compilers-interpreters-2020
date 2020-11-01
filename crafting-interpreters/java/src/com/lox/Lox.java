@@ -1,6 +1,5 @@
 package com.lox;
 
-import com.lox.ast.AstPrinter;
 import com.lox.ast.Expr;
 
 import java.io.BufferedReader;
@@ -13,7 +12,9 @@ import java.util.List;
 
 public class Lox {
 
+    private static final Interpreter interpreter = new Interpreter();
     private static boolean hadError = false;
+    private static boolean hadRuntimeError = false;
 
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
@@ -34,6 +35,7 @@ public class Lox {
             /* EX_DATAERR (65) The input data was incorrect in some way. This should only be used for user's data and not system files. */
             System.exit(65);
         }
+        if (hadRuntimeError) System.exit(70);
     }
 
     private static void runPrompt() throws IOException {
@@ -56,7 +58,7 @@ public class Lox {
         Expr expression = parser.parse();
 
         if (hadError) return;
-        System.out.println(new AstPrinter().print(expression));
+        interpreter.interpret(expression);
     }
 
     // TODO: show the offending line and the column (character) within the line
@@ -70,6 +72,14 @@ public class Lox {
         } else {
             report(token.line, " at '" + token.lexeme + "'", message);
         }
+    }
+
+    public static void runtimeError(RuntimeError error) {
+        System.err.println(
+                error.getMessage()
+                + "\n[line " + error.token.line + "]"
+        );
+        hadRuntimeError = true;
     }
 
     /**

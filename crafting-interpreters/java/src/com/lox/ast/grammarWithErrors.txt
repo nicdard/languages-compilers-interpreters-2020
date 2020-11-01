@@ -1,0 +1,15 @@
+expression     → ternary ;
+ternary        → comma ( "?" expression ":" expression )* ;
+comma          → equality ( "," comma )* ;
+equality       → comparison ( ( "!=" | "==" ) comparison )*
+               | ( ( "!=" | "==" ) comparison )+ ;              // Error production
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )*
+               | ( ( ">" | ">=" | "<" | "<=" ) term )+ ;        // Error production
+term           → factor ( ( "-" | "+" ) factor )*
+               | ( ( "-" | "+" ) factor )+ ;                    // Error production
+factor         → unary ( ( "/" | "*" ) unary )*
+               | ( ( "/" | "*" ) unary )+ ;                     // Error production
+unary          → ( "!" | "-" ) unary
+               | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil"
+               | "(" expression ")" ;

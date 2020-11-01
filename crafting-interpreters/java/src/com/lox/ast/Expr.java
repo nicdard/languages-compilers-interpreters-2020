@@ -4,7 +4,7 @@ import com.lox.Token;
 
 public abstract class Expr {
 
-	interface Visitor<R> {
+	public interface Visitor<R> {
 		R visitTernaryExpr(Ternary expr);
 		R visitBinaryExpr(Binary expr);
 		R visitGroupingExpr(Grouping expr);
@@ -20,13 +20,13 @@ public abstract class Expr {
 		}
 
 		@Override
-		<R> R accept(Visitor<R> visitor) {
+		public <R> R accept(Visitor<R> visitor) {
 			return visitor.visitTernaryExpr(this);
 		}
 
-		final Expr guard;
-		final Expr then;
-		final Expr elseBranch;
+		public final Expr guard;
+		public final Expr then;
+		public final Expr elseBranch;
 	}
 
 	public static class Binary extends Expr {
@@ -37,13 +37,13 @@ public abstract class Expr {
 		}
 
 		@Override
-		<R> R accept(Visitor<R> visitor) {
+		public <R> R accept(Visitor<R> visitor) {
 			return visitor.visitBinaryExpr(this);
 		}
 
-		final Expr left;
-		final Token operator;
-		final Expr right;
+		public final Expr left;
+		public final Token operator;
+		public final Expr right;
 	}
 
 	public static class Grouping extends Expr {
@@ -52,11 +52,11 @@ public abstract class Expr {
 		}
 
 		@Override
-		<R> R accept(Visitor<R> visitor) {
+		public <R> R accept(Visitor<R> visitor) {
 			return visitor.visitGroupingExpr(this);
 		}
 
-		final Expr expression;
+		public final Expr expression;
 	}
 
 	public static class Literal extends Expr {
@@ -65,11 +65,11 @@ public abstract class Expr {
 		}
 
 		@Override
-		<R> R accept(Visitor<R> visitor) {
+		public <R> R accept(Visitor<R> visitor) {
 			return visitor.visitLiteralExpr(this);
 		}
 
-		final Object value;
+		public final Object value;
 	}
 
 	public static class Unary extends Expr {
@@ -79,13 +79,13 @@ public abstract class Expr {
 		}
 
 		@Override
-		<R> R accept(Visitor<R> visitor) {
+		public <R> R accept(Visitor<R> visitor) {
 			return visitor.visitUnaryExpr(this);
 		}
 
-		final Token operator;
-		final Expr right;
+		public final Token operator;
+		public final Expr right;
 	}
 
-	abstract <R> R accept(Visitor<R> visitor);
+	public abstract <R> R accept(Visitor<R> visitor);
 }
