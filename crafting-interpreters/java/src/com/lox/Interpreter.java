@@ -39,11 +39,14 @@ public class Interpreter implements Expr.Visitor<Object> {
                     return (double)left + (double)right;
                 if (left instanceof String && right instanceof String)
                     return (String)left + (String)right;
+                if (hasAStringOperand(left, right))
+                    return stringify(left) + stringify(right);
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
                 return (double)left * (double)right;
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
+                checkNotZero(expr.operator, (double)right);
                 return (double)left / (double)right;
             case GREATER:
                 checkNumberOperands(expr.operator, left, right);
@@ -107,6 +110,26 @@ public class Interpreter implements Expr.Visitor<Object> {
         if (item1 == null && item2 == null) return true;
         if (item1 == null) return false;
         return item1.equals(item2);
+    }
+
+    /**
+     * Checks that either <code>op1</code> and <code>op2</code>
+     * is a string, throws a {@link RuntimeError} otherwise.
+     */
+    private boolean hasAStringOperand(Object ...ops) {
+        for (Object op : ops) {
+            if (op instanceof String) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks that <code>operand</code> is zero without casting it to an int.
+     * @param operand
+     */
+    private void checkNotZero(Token operator, double operand) {
+        if (operand != 0.0) return;
+        throw new RuntimeError(operator, "Invalid 0 operand.");
     }
 
     /**
