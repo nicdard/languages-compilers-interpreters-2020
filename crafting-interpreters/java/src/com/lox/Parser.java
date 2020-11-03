@@ -1,7 +1,9 @@
 package com.lox;
 
 import com.lox.ast.Expr;
+import com.lox.ast.Stmt;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /* https://craftinginterpreters.com/parsing-expressions.html */
@@ -32,12 +34,29 @@ class Parser {
     /**
      * Starts recursive-descent parsing.
      */
-    Expr parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(statement());
         }
+        return statements;
+    }
+
+    private Stmt statement() {
+        if (match(TokenType.PRINT)) return printStatement();
+        return expressionStatement();
+    }
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt expressionStatement() {
+        Expr value = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(value);
     }
 
     private Expr expression() {

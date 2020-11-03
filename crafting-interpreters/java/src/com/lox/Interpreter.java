@@ -1,19 +1,37 @@
 package com.lox;
 
 import com.lox.ast.Expr;
+import com.lox.ast.Stmt;
+
+import java.util.List;
 
 /**
  * Performs a post-order traversal to evaluate the AST.
  */
-public class Interpreter implements Expr.Visitor<Object> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
-    public void interpret(Expr expression) {
+    public void interpret(List<Stmt> statements) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
     }
 
     @Override
@@ -87,6 +105,10 @@ public class Interpreter implements Expr.Visitor<Object> {
                 return -(double)value;
         }
         return null;
+    }
+
+    private Void execute(Stmt stmt) {
+        return stmt.accept(this);
     }
 
     private Object evaluate(Expr expr) {

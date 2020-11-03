@@ -1,6 +1,7 @@
 package com.lox;
 
 import com.lox.ast.Expr;
+import com.lox.ast.Stmt;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -55,10 +56,10 @@ public class Lox {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        List<Stmt> statements = parser.parse();
 
         if (hadError) return;
-        interpreter.interpret(expression);
+        interpreter.interpret(statements);
     }
 
     // TODO: show the offending line and the column (character) within the line
