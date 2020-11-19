@@ -1,9 +1,23 @@
 package com.lox.ast;
 
-public class AstRPNPrinter implements Expr.Visitor<String> {
+import com.lox.Evaluator;
 
-    String print(Expr expr) {
-        return expr.accept(this);
+import java.util.List;
+
+public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor<String> {
+
+    @Override
+    public void interpret(List<Stmt> statements) {
+        for (Stmt statement : statements) {
+            System.out.println(statement.accept(this));
+        }
+    }
+
+    @Override
+    public String visitAssignExpr(Expr.Assign expr) {
+        return expr.name.lexeme + " "
+                + expr.value.accept(this) + " "
+                + "=";
     }
 
     @Override
@@ -36,5 +50,28 @@ public class AstRPNPrinter implements Expr.Visitor<String> {
     @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return expr.right.accept(this) + " " + expr.operator.lexeme;
+    }
+
+    @Override
+    public String visitVariableExpr(Expr.Variable expr) {
+        return expr.name.lexeme + " var";
+    }
+
+    @Override
+    public String visitExpressionStmt(Stmt.Expression stmt) {
+        return stmt.expression.accept(this);
+    }
+
+    @Override
+    public String visitPrintStmt(Stmt.Print stmt) {
+        return stmt.expression.accept(this) + " "
+                + "print";
+    }
+
+    @Override
+    public String visitVarStmt(Stmt.Var stmt) {
+        return stmt.initializer.accept(this) + " "
+                + stmt.name.lexeme + " "
+                + "var";
     }
 }

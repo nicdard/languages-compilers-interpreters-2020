@@ -1,0 +1,7 @@
+var a = 1;
+print a = 2;
+var b = 2 + 3 * 5;
+var c = true ? 2 + 3 : 4 * 10;
+var d = "ciao" + "sono";
+c = d + "bello";
+print c;

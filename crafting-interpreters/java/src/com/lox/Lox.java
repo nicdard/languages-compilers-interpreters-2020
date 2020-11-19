@@ -1,6 +1,7 @@
 package com.lox;
 
-import com.lox.ast.Expr;
+import com.lox.ast.AstPrinter;
+import com.lox.ast.AstRPNPrinter;
 import com.lox.ast.Stmt;
 
 import java.io.BufferedReader;
@@ -13,17 +14,63 @@ import java.util.List;
 
 public class Lox {
 
-    private static final Interpreter interpreter = new Interpreter();
+    private static Evaluator evaluator;
     private static boolean hadError = false;
     private static boolean hadRuntimeError = false;
 
+    private static final String USAGE_MESSAGE = "Usage: jlox [mode] [script]\n" +
+            "where script is optional and mode should be one of the following:\n" +
+            "-i: run the REPL, if a script is given it is executed before displaying the prompt\n" +
+            "-run: runs the given script\n" +
+            "-ast: prints the abstract syntax tree\n" +
+            "-astRPN: prints the AST in reverse polish notation style\n";
+
     public static void main(String[] args) throws IOException {
-        if (args.length > 1) {
-            System.out.println("Usage: jlox [script]");
+        if (args.length > 2) {
+            System.out.println(USAGE_MESSAGE);
             /* EX_USAGE (64) The command was used incorrectly, e.g., with the wrong number of arguments, a bad flag, a bad syntax in a parameter, or whatever.*/
             System.exit(64);
+        } else if (args.length == 2) {
+            String path = args[1];
+            switch (args[0]) {
+                case "-run":
+                    evaluator = new Interpreter();
+                    runFile(path);
+                    break;
+                case "-i":
+                    if (args[1] != null) {
+                        System.out.println("Ignoring script parameter.");
+                    }
+                    evaluator = new Interpreter();
+                    runPrompt();
+                    break;
+                case "-ast":
+                    evaluator = new AstPrinter();
+                    runFile(path);
+                    break;
+                case "-astRPN":
+                    evaluator = new AstRPNPrinter();
+                    runFile(path);
+                    break;
+                default:
+                    System.out.println("Unknown option " + args[1] + ".");
+                    System.out.println(USAGE_MESSAGE);
+                    System.exit(64);
+            }
         } else if (args.length == 1) {
-            runFile(args[0]);
+            switch (args[0]) {
+                case "-i":
+                    runPrompt();
+                    break;
+                case "-ast":
+                case "-astRPN":
+                case "-run":
+                    System.out.println("Expected [script] for option " + args[0] + ".");
+                default:
+                    System.out.println("Unknown option " + args[1] + ".");
+                    System.out.println(USAGE_MESSAGE);
+                    System.exit(64);
+            }
         } else {
             runPrompt();
         }
@@ -59,7 +106,7 @@ public class Lox {
         List<Stmt> statements = parser.parse();
 
         if (hadError) return;
-        interpreter.interpret(statements);
+        evaluator.interpret(statements);
     }
 
     // TODO: show the offending line and the column (character) within the line

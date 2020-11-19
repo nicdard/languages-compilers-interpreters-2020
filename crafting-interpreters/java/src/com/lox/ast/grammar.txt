@@ -1,16 +1,24 @@
-program        → statement* EOF ;
-statement      → exprStmt
-               | printStmt;
-exprStmt       → expression ";" ;
-printStmt      → "print" expression ";" ;
-expression     → ternary ;
-ternary        → comma ( "?" expression ":" expression )* ;
-comma          → equality ( "," comma )* ;
-equality       → comparison ( ( "!=" | "==" ) comparison )* ;
-comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-term           → factor ( ( "-" | "+" ) factor )* ;
-factor         → unary ( ( "/" | "*" ) unary )* ;
-unary          → ( "!" | "-" ) unary
-               | primary ;
-primary        → NUMBER | STRING | "true" | "false" | "nil"
-               | "(" expression ")" ;
+program         → declaration* EOF ;
+declaration     → varDecl
+                | statement ;
+varDecl         → "var" IDENTIFIER ( "=" expression )? ";" ;
+                |
+statement       → exprStmt
+                | printStmt;
+exprStmt        → expression ";" ;
+printStmt       → "print" expression ";" ;
+expression      → assignment ;
+expression      → IDENTIFIER = expression
+                | ternary ;
+ternary         → comma ( "?" expression ":" expression )* ;
+comma           → equality ( "," comma )* ;
+equality        → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison      → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term            → factor ( ( "-" | "+" ) factor )* ;
+factor          → unary ( ( "/" | "*" ) unary )* ;
+unary           → ( "!" | "-" ) unary
+                | primary ;
+primary         → NUMBER | STRING
+                | "true" | "false" | "nil"
+                | "(" expression ")"
+                | IDENTIFIER ; // Access a variable

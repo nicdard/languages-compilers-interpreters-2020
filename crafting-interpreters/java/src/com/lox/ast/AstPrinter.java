@@ -1,9 +1,21 @@
 package com.lox.ast;
 
-public class AstPrinter implements Expr.Visitor<String> {
+import com.lox.Evaluator;
 
-    public String print(Expr expr) {
-        return expr.accept(this);
+import java.util.List;
+
+public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor<String> {
+
+    @Override
+    public void interpret(List<Stmt> statements) {
+        for (Stmt statement : statements) {
+            System.out.println(statement.accept(this));
+        }
+    }
+
+    @Override
+    public String visitAssignExpr(Expr.Assign expr) {
+        return parenthesize("= " + expr.name.lexeme, expr.value);
     }
 
     @Override
@@ -33,6 +45,11 @@ public class AstPrinter implements Expr.Visitor<String> {
         return parenthesize(expr.operator.lexeme, expr.right);
     }
 
+    @Override
+    public String visitVariableExpr(Expr.Variable expr) {
+        return "(var " + expr.name.lexeme + ")";
+    }
+
     private String parenthesize(String name, Expr ...exprs) {
         StringBuilder builder = new StringBuilder();
         builder.append('(').append(name);
@@ -42,5 +59,20 @@ public class AstPrinter implements Expr.Visitor<String> {
         }
         builder.append(")");
         return builder.toString();
+    }
+
+    @Override
+    public String visitExpressionStmt(Stmt.Expression stmt) {
+        return stmt.expression.accept(this);
+    }
+
+    @Override
+    public String visitPrintStmt(Stmt.Print stmt) {
+        return parenthesize("print", stmt.expression);
+    }
+
+    @Override
+    public String visitVarStmt(Stmt.Var stmt) {
+        return parenthesize("var " + stmt.name.lexeme + " =", stmt.initializer);
     }
 }
