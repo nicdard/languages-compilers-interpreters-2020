@@ -65,6 +65,18 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     }
 
     @Override
+    public String visitBreakStmt(Stmt.Break stmt) {
+        return " break";
+    }
+
+    @Override
+    public String visitWhileStmt(Stmt.While stmt) {
+        return stmt.body.accept(this)
+                + stmt.condition.accept(this)
+                + "while";
+    }
+
+    @Override
     public String visitIfStmt(Stmt.If stmt) {
         StringBuilder builder = new StringBuilder();
         if (stmt.elseBranch != null) {
@@ -111,6 +123,8 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
         if (stmt.initializer != null) {
             builder.append(" ");
             builder.append(stmt.initializer.accept(this));
+            builder.append(" ");
+            builder.append(stmt.name.lexeme);
             builder.append(" =");
         }
         return builder.toString();

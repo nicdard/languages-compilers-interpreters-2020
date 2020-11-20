@@ -26,6 +26,8 @@ public class GenerateAst {
         ));
 
         defineAst(outputDir, "Stmt", Arrays.asList(
+            "Break      : ",
+            "While      : Expr condition, Stmt body",
             "If         : Expr condition, Stmt thenBranch," +
                         " Stmt elseBranch",
             "Block      : List<Stmt> statements",
@@ -76,7 +78,9 @@ public class GenerateAst {
         // Constructor.
         writer.println("\t\tpublic " + className + "(" + fieldList + ") {");
         // Store paramters in fields.
-        String[] fields = fieldList.split(", ");
+        String[] fields = fieldList.isEmpty()
+                ? new String[0]
+                : fieldList.split(", ");
         for (String field : fields) {
             String name = field.split(" ")[1];
             writer.println("\t\t\tthis." + name + " = " + name + ";");

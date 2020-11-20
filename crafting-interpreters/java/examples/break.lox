@@ -1,0 +1,8 @@
+for (var a = 0; a < 10; a = a + 1) {
+    var b = a;
+    while (b > 0) {
+        print "ciao" + b;
+        if (b == 5) break;
+        b = b - 1;
+    }
+}

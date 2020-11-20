@@ -52,8 +52,22 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     }
 
     @Override
+    public String visitBreakStmt(Stmt.Break stmt) {
+        return "break";
+    }
+
+    @Override
+    public String visitWhileStmt(Stmt.While stmt) {
+        return parenthesize2("while", stmt.condition, stmt.body);
+    }
+
+    @Override
     public String visitIfStmt(Stmt.If stmt) {
-        return parenthesize2("if", stmt.condition, stmt.thenBranch, stmt.elseBranch);
+        if (stmt.elseBranch != null) {
+            return parenthesize2("if", stmt.condition, stmt.thenBranch, stmt.elseBranch);
+        } else {
+            return parenthesize2("if", stmt.condition, stmt.thenBranch);
+        }
     }
 
     @Override
@@ -88,7 +102,7 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
 
     @Override
     public String visitAssignExpr(Expr.Assign expr) {
-        return parenthesize2("=" + expr.name.lexeme, expr.value);
+        return parenthesize2("=", expr.name.lexeme, expr.value);
     }
 
     private String parenthesize(String name, Expr ...exprs) {

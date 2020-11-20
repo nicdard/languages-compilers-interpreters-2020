@@ -10,6 +10,8 @@ import java.util.List;
  */
 public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
+    private static class BreakException extends RuntimeException { }
+
     private Environment environment = new Environment();
 
     public void interpret(List<Stmt> statements) {
@@ -20,6 +22,23 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+    }
+
+    @Override
+    public Void visitBreakStmt(Stmt.Break stmt) {
+        throw new BreakException();
+    }
+
+    @Override
+    public Void visitWhileStmt(Stmt.While stmt) {
+        try {
+            while (isTruthy(evaluate(stmt.condition))) {
+                execute(stmt.body);
+            }
+        } catch (BreakException e) {
+            // Do nothing.
+        }
+        return null;
     }
 
     @Override
@@ -131,7 +150,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
             case LESS_EQUAL:
                 checkNumberOperands(expr.operator, left, right);
                 return (double)left <= (double)right;
-            case BANG_EQUAL: return isEqual(left, right);
+            case BANG_EQUAL: return !isEqual(left, right);
             case EQUAL_EQUAL: return isEqual(left, right);
         }
         return null;
