@@ -58,6 +58,18 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     }
 
     @Override
+    public String visitBlockStmt(Stmt.Block stmt) {
+        StringBuilder builder = new StringBuilder();
+        builder.append('(');
+        for (Stmt statement : stmt.statements) {
+            builder.append(" ");
+            builder.append(statement.accept(this));
+        }
+        builder.append("block)");
+        return builder.toString();
+    }
+
+    @Override
     public String visitExpressionStmt(Stmt.Expression stmt) {
         return stmt.expression.accept(this);
     }

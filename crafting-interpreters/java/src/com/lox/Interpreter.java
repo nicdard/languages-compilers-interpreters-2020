@@ -23,6 +23,24 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
     }
 
     @Override
+    public Void visitBlockStmt(Stmt.Block stmt) {
+        executeBlock(stmt.statements, new Environment(environment));
+        return null;
+    }
+
+    private void executeBlock(List<Stmt> stmts, Environment environment) {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+            for (Stmt stmt : stmts) {
+                execute(stmt);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
+
+    @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         evaluate(stmt.expression);
         return null;
