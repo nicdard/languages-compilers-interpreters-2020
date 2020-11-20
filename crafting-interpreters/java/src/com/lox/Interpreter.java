@@ -99,6 +99,9 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
         Object left = evaluate(expr.left);
         Object right = evaluate(expr.right);
         switch (expr.operator.type) {
+            case COMMA:
+                // Discard first operand result.
+                return right;
             case MINUS:
                 checkNumberOperands(expr.operator, left, right);
                 return (double)left - (double)right;
@@ -142,6 +145,17 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;
+    }
+
+    @Override
+    public Object visitLogicalExpr(Expr.Logical expr) {
+        Object left = evaluate(expr.left);
+        if (expr.operator.type == TokenType.OR) {
+            if (isTruthy(left)) return left;
+        } else if (expr.operator.type == TokenType.AND) {
+            if (!isTruthy(left)) return left;
+        }
+        return evaluate(expr.right);
     }
 
     @Override

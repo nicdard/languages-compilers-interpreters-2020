@@ -133,13 +133,33 @@ class Parser {
     }
 
     private Expr comma() {
-        Expr expression = equality();
+        Expr expression = or();
         while (match(TokenType.COMMA)) {
             Token operator = previous();
-            Expr right = comma();
+            Expr right = or();
             expression = new Expr.Binary(expression, operator, right);
         }
         return expression;
+    }
+
+    private Expr or() {
+        Expr expr = and();
+        while (match(TokenType.OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = equality();
+        while (match(TokenType.AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
     }
 
     private Expr equality() {

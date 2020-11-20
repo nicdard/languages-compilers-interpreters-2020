@@ -37,6 +37,11 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     }
 
     @Override
+    public String visitLogicalExpr(Expr.Logical expr) {
+        return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+    }
+
+    @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return parenthesize(expr.operator.lexeme, expr.right);
     }

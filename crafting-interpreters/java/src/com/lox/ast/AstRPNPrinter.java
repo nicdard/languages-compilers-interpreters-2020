@@ -48,6 +48,13 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     }
 
     @Override
+    public String visitLogicalExpr(Expr.Logical expr) {
+        return expr.left.accept(this) + " "
+                + expr.right.accept(this) + " "
+                + expr.operator.lexeme;
+    }
+
+    @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return expr.right.accept(this) + " " + expr.operator.lexeme;
     }
