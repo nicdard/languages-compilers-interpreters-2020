@@ -23,6 +23,16 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
     }
 
     @Override
+    public Void visitIfStmt(Stmt.If stmt) {
+        if (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch);
+        } else if (stmt.elseBranch != null) {
+            execute(stmt.elseBranch);
+        }
+        return null;
+    }
+
+    @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
         executeBlock(stmt.statements, new Environment(environment));
         return null;
@@ -72,7 +82,11 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
 
     @Override
     public Object visitTernaryExpr(Expr.Ternary expr) {
-        return null;
+        if (isTruthy(evaluate(expr.guard))) {
+            return evaluate(expr.then);
+        } else {
+            return evaluate(expr.elseBranch);
+        }
     }
 
     /**

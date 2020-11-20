@@ -15,8 +15,8 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
 
     @Override
     public String visitAssignExpr(Expr.Assign expr) {
-        return expr.name.lexeme + " "
-                + expr.value.accept(this) + " "
+        return  expr.value.accept(this) + " "
+                + expr.name.lexeme + " "
                 + "=";
     }
 
@@ -54,18 +54,32 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
 
     @Override
     public String visitVariableExpr(Expr.Variable expr) {
-        return expr.name.lexeme + " var";
+        return expr.name.lexeme;
+    }
+
+    @Override
+    public String visitIfStmt(Stmt.If stmt) {
+        StringBuilder builder = new StringBuilder();
+        if (stmt.elseBranch != null) {
+            builder.append(stmt.elseBranch);
+        }
+        builder.append(stmt.thenBranch);
+        builder.append(stmt.condition);
+        builder.append("if");
+        return builder.toString();
     }
 
     @Override
     public String visitBlockStmt(Stmt.Block stmt) {
         StringBuilder builder = new StringBuilder();
-        builder.append('(');
+        // blockBegin and blockEnd are used as delimiter for a block:
+        // the machine should add a scope in the environment.
+        builder.append("blockBegin");
         for (Stmt statement : stmt.statements) {
-            builder.append(" ");
+            builder.append("\n");
             builder.append(statement.accept(this));
         }
-        builder.append("block)");
+        builder.append(" blockEnd");
         return builder.toString();
     }
 
@@ -82,8 +96,16 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
 
     @Override
     public String visitVarStmt(Stmt.Var stmt) {
-        return stmt.initializer.accept(this) + " "
-                + stmt.name.lexeme + " "
-                + "var";
+        StringBuilder builder = new StringBuilder();
+        // We define the variable first, so the machine will find the definition.
+        builder.append(stmt.name.lexeme);
+        builder.append(" var");
+        // Then we assign to the already defined variable the initialization value.
+        if (stmt.initializer != null) {
+            builder.append(" ");
+            builder.append(stmt.initializer.accept(this));
+            builder.append(" =");
+        }
+        return builder.toString();
     }
 }

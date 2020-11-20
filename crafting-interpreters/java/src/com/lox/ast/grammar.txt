@@ -3,11 +3,13 @@ declaration     → varDecl
                 | statement ;
 varDecl         → "var" IDENTIFIER ( "=" expression )? ";" ;
                 |
-statement       → exprStmt
+statement       → ifStmt
+                | exprStmt
                 | printStmt
                 | block ;
 block           → "{" declaration* "}" ;
-
+ifStmt          → "if" "(" expression ")" statement
+                ( "else" statement )? ;
 exprStmt        → expression ";" ;
 printStmt       → "print" expression ";" ;
 expression      → assignment ;

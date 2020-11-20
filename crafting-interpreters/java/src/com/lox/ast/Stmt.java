@@ -6,10 +6,28 @@ import java.util.List;
 public abstract class Stmt {
 
 	public interface Visitor<R> {
+		R visitIfStmt(If stmt);
 		R visitBlockStmt(Block stmt);
 		R visitExpressionStmt(Expression stmt);
 		R visitPrintStmt(Print stmt);
 		R visitVarStmt(Var stmt);
+	}
+
+	public static class If extends Stmt {
+		public If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+			this.condition = condition;
+			this.thenBranch = thenBranch;
+			this.elseBranch = elseBranch;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitIfStmt(this);
+		}
+
+		public final Expr condition;
+		public final Stmt thenBranch;
+		public final Stmt elseBranch;
 	}
 
 	public static class Block extends Stmt {

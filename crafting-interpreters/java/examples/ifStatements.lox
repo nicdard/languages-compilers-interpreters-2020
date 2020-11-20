@@ -1,0 +1,2 @@
+if (10) print "then";
+else print "Dead code";

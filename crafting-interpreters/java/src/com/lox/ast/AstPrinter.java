@@ -46,15 +46,9 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
         return expr.name.lexeme;
     }
 
-    private String parenthesize(String name, Expr ...exprs) {
-        StringBuilder builder = new StringBuilder();
-        builder.append('(').append(name);
-        for (Expr expr : exprs) {
-            builder.append(" ");
-            builder.append(expr.accept(this));
-        }
-        builder.append(")");
-        return builder.toString();
+    @Override
+    public String visitIfStmt(Stmt.If stmt) {
+        return parenthesize2("if", stmt.condition, stmt.thenBranch, stmt.elseBranch);
     }
 
     @Override
@@ -90,6 +84,17 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     @Override
     public String visitAssignExpr(Expr.Assign expr) {
         return parenthesize2("=" + expr.name.lexeme, expr.value);
+    }
+
+    private String parenthesize(String name, Expr ...exprs) {
+        StringBuilder builder = new StringBuilder();
+        builder.append('(').append(name);
+        for (Expr expr : exprs) {
+            builder.append(" ");
+            builder.append(expr.accept(this));
+        }
+        builder.append(")");
+        return builder.toString();
     }
 
     private String parenthesize2(String name, Object... parts) {
