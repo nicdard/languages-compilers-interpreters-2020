@@ -1,6 +1,7 @@
 package com.lox.ast;
 
 import com.lox.Evaluator;
+import com.lox.Token;
 
 import java.util.List;
 
@@ -26,6 +27,18 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
                 + expr.then.accept(this) + " "
                 + expr.elseBranch.accept(this) + " "
                 + "?:";
+    }
+
+    @Override
+    public String visitCallExpr(Expr.Call expr) {
+        StringBuilder builder = new StringBuilder();
+        for (Expr argument : expr.arguments) {
+            builder.append(argument.accept(this));
+            builder.append(" ");
+        }
+        builder.append(expr.callee.accept(this));
+        builder.append(" call");
+        return builder.toString();
     }
 
     @Override
@@ -73,18 +86,20 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     public String visitWhileStmt(Stmt.While stmt) {
         return stmt.body.accept(this)
                 + stmt.condition.accept(this)
-                + "while";
+                + " while";
     }
 
     @Override
     public String visitIfStmt(Stmt.If stmt) {
         StringBuilder builder = new StringBuilder();
         if (stmt.elseBranch != null) {
-            builder.append(stmt.elseBranch);
+            builder.append(stmt.elseBranch.accept(this));
+            builder.append(" ");
         }
-        builder.append(stmt.thenBranch);
-        builder.append(stmt.condition);
-        builder.append("if");
+        builder.append(stmt.thenBranch.accept(this))
+                .append(" ")
+                .append(stmt.condition.accept(this))
+                .append(" if");
         return builder.toString();
     }
 
@@ -93,12 +108,12 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
         StringBuilder builder = new StringBuilder();
         // blockBegin and blockEnd are used as delimiter for a block:
         // the machine should add a scope in the environment.
-        builder.append("blockBegin");
+        builder.append("( ");
         for (Stmt statement : stmt.statements) {
-            builder.append("\n");
+            builder.append(" ");
             builder.append(statement.accept(this));
         }
-        builder.append(" blockEnd");
+        builder.append(" )");
         return builder.toString();
     }
 
@@ -108,9 +123,31 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     }
 
     @Override
+    public String visitFunctionStmt(Stmt.Function stmt) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("( ");
+        for (Stmt body : stmt.body) {
+            builder.append(body.accept(this));
+        }
+        builder.append(") ");
+        for (Token param : stmt.params) {
+            if (param != stmt.params.get(0)) builder.append(" ");
+            builder.append(param.lexeme);
+        }
+        builder.append(" fun");
+        return builder.toString();
+    }
+
+    @Override
     public String visitPrintStmt(Stmt.Print stmt) {
         return stmt.expression.accept(this) + " "
                 + "print";
+    }
+
+    @Override
+    public String visitReturnStmt(Stmt.Return stmt) {
+        return stmt.value.accept(this) + " "
+                + "return";
     }
 
     @Override

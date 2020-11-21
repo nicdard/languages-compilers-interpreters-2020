@@ -3,6 +3,7 @@ package com.lox.ast;
 import com.lox.Evaluator;
 import com.lox.Token;
 
+import javax.print.DocFlavor;
 import java.util.List;
 
 public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor<String> {
@@ -17,6 +18,11 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     @Override
     public String visitTernaryExpr(Expr.Ternary expr) {
         return parenthesize("?:",expr.guard, expr.then, expr.elseBranch);
+    }
+
+    @Override
+    public String visitCallExpr(Expr.Call expr) {
+        return parenthesize2("call", expr.callee, expr.arguments);
     }
 
     @Override
@@ -88,8 +94,29 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     }
 
     @Override
+    public String visitFunctionStmt(Stmt.Function stmt) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("(fun ").append(stmt.name.lexeme).append("(");
+        for (Token param : stmt.params) {
+            if (param != stmt.params.get(0)) builder.append(" ");
+            builder.append(param.lexeme);
+        }
+        builder.append(") ");
+        for (Stmt body : stmt.body) {
+            builder.append(body.accept(this));
+        }
+        builder.append(")");
+        return builder.toString();
+    }
+
+    @Override
     public String visitPrintStmt(Stmt.Print stmt) {
         return parenthesize("print", stmt.expression);
+    }
+
+    @Override
+    public String visitReturnStmt(Stmt.Return stmt) {
+        return parenthesize("return", stmt.value);
     }
 
     @Override
@@ -116,9 +143,15 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
         return builder.toString();
     }
 
-    private String parenthesize2(String name, Object... parts) {
+    private String parenthesize2(String name, Object ...parts) {
         StringBuilder builder = new StringBuilder();
         builder.append("(").append(name);
+        transform(builder, parts);
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private void transform(StringBuilder builder, Object... parts) {
         for (Object part : parts) {
             builder.append(" ");
             if (part instanceof Expr) {
@@ -127,11 +160,11 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
                 builder.append(((Stmt) part).accept(this));
             } else if (part instanceof Token) {
                 builder.append(((Token) part).lexeme);
+            } else if (part instanceof List) {
+                transform(builder, ((List) part).toArray());
             } else {
                 builder.append(part);
             }
         }
-        builder.append(")");
-        return builder.toString();
     }
 }

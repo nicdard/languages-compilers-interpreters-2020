@@ -17,6 +17,8 @@ public class GenerateAst {
         defineAst(outputDir, "Expr", Arrays.asList(
             "Assign     : Token name, Expr value",
             "Ternary    : Expr guard, Expr then, Expr elseBranch",
+            // Store the Token of the closing parenthesis to be used when reporting an error.
+            "Call       : Expr callee, Token paren, List<Expr> arguments",
             "Binary     : Expr left, Token operator, Expr right",
             "Grouping   : Expr expression",
             "Literal    : Object value",
@@ -32,7 +34,10 @@ public class GenerateAst {
                         " Stmt elseBranch",
             "Block      : List<Stmt> statements",
             "Expression : Expr expression",
+            "Function   : Token name, List<Token> params," +
+                        " List<Stmt> body",
             "Print      : Expr expression",
+            "Return     : Token keyword, Expr value",
             "Var        : Token name, Expr initializer"
         ));
     }
