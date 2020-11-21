@@ -20,6 +20,7 @@ public class GenerateAst {
             // Store the Token of the closing parenthesis to be used when reporting an error.
             "Call       : Expr callee, Token paren, List<Expr> arguments",
             "Binary     : Expr left, Token operator, Expr right",
+            "Function   : List<Token> params, List<Stmt> body",
             "Grouping   : Expr expression",
             "Literal    : Object value",
             "Logical    : Expr left, Token operator, Expr right",
@@ -34,8 +35,7 @@ public class GenerateAst {
                         " Stmt elseBranch",
             "Block      : List<Stmt> statements",
             "Expression : Expr expression",
-            "Function   : Token name, List<Token> params," +
-                        " List<Stmt> body",
+            "Function   : Token name, Expr.Function function",
             "Print      : Expr expression",
             "Return     : Token keyword, Expr value",
             "Var        : Token name, Expr initializer"

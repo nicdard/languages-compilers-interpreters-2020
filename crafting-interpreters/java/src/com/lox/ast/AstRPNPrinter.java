@@ -49,6 +49,14 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     }
 
     @Override
+    public String visitFunctionExpr(Expr.Function expr) {
+        StringBuilder builder = new StringBuilder();
+        buildFunctionBody(builder, expr);
+        builder.append("fun");
+        return builder.toString();
+    }
+
+    @Override
     public String visitGroupingExpr(Expr.Grouping expr) {
         return expr.expression.accept(this) + " group";
     }
@@ -125,17 +133,21 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     @Override
     public String visitFunctionStmt(Stmt.Function stmt) {
         StringBuilder builder = new StringBuilder();
+        buildFunctionBody(builder, stmt.function);
+        builder.append(" fun");
+        return builder.toString();
+    }
+
+    private void buildFunctionBody(StringBuilder builder, Expr.Function function) {
         builder.append("( ");
-        for (Stmt body : stmt.body) {
+        for (Stmt body : function.body) {
             builder.append(body.accept(this));
         }
         builder.append(") ");
-        for (Token param : stmt.params) {
-            if (param != stmt.params.get(0)) builder.append(" ");
+        for (Token param : function.params) {
+            if (param != function.params.get(0)) builder.append(" ");
             builder.append(param.lexeme);
         }
-        builder.append(" fun");
-        return builder.toString();
     }
 
     @Override

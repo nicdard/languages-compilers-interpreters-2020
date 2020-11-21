@@ -31,6 +31,26 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     }
 
     @Override
+    public String visitFunctionExpr(Expr.Function expr) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("(fun ").append("(");
+        buildsFunctionBody(builder, expr);
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private void buildsFunctionBody(StringBuilder builder, Expr.Function expr) {
+        for (Token param : expr.params) {
+            if (param != expr.params.get(0)) builder.append(" ");
+            builder.append(param.lexeme);
+        }
+        builder.append(") ");
+        for (Stmt body : expr.body) {
+            builder.append(body.accept(this));
+        }
+    }
+
+    @Override
     public String visitGroupingExpr(Expr.Grouping expr) {
         return parenthesize("group", expr.expression);
     }
@@ -97,14 +117,7 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     public String visitFunctionStmt(Stmt.Function stmt) {
         StringBuilder builder = new StringBuilder();
         builder.append("(fun ").append(stmt.name.lexeme).append("(");
-        for (Token param : stmt.params) {
-            if (param != stmt.params.get(0)) builder.append(" ");
-            builder.append(param.lexeme);
-        }
-        builder.append(") ");
-        for (Stmt body : stmt.body) {
-            builder.append(body.accept(this));
-        }
+        buildsFunctionBody(builder, stmt.function);
         builder.append(")");
         return builder.toString();
     }

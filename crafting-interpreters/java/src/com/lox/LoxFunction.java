@@ -1,15 +1,17 @@
 package com.lox;
 
-import com.lox.ast.Stmt;
+import com.lox.ast.Expr;
 
 import java.util.List;
 
 public class LoxFunction implements LoxCallable {
 
-    private final Stmt.Function declaration;
+    private final String name;
+    private final Expr.Function declaration;
     private final Environment closure;
 
-    LoxFunction(Stmt.Function declaration, Environment closure) {
+    LoxFunction(String name, Expr.Function declaration, Environment closure) {
+        this.name = name;
         this.declaration = declaration;
         this.closure = closure;
     }
@@ -22,7 +24,7 @@ public class LoxFunction implements LoxCallable {
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
         Environment environment = new Environment(closure);
-        for (int i = 0; i < declaration.params.size(); ++i) {
+        for (int i = 0; i < arity(); ++i) {
             environment.define(declaration.params.get(i).lexeme, arguments.get(i));
         }
         try {
@@ -35,6 +37,8 @@ public class LoxFunction implements LoxCallable {
 
     @Override
     public String toString() {
-        return "<fn " + declaration.name.lexeme + ">";
+        return name == null
+                ? "<fn>"
+                : "<fn " + name + ">";
     }
 }

@@ -42,4 +42,7 @@ arguments       → expression ( "," expression )* ;
 primary         → NUMBER | STRING
                 | "true" | "false" | "nil"
                 | "(" expression ")"
-                | IDENTIFIER ; // Access a variable
+                | IDENTIFIER // Access a variable
+                | funExpression ;
+funExpression   → "fun" "(" parameters? ")" block ;
+                | assignment ;

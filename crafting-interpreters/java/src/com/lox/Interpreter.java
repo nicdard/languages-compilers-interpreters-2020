@@ -98,7 +98,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxFunction function = new LoxFunction(stmt, environment);
+        LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.function, environment);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -209,6 +209,11 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
             case EQUAL_EQUAL: return isEqual(left, right);
         }
         return null;
+    }
+
+    @Override
+    public Object visitFunctionExpr(Expr.Function expr) {
+        return new LoxFunction(null, expr, environment);
     }
 
     @Override
