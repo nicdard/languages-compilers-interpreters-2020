@@ -58,4 +58,30 @@ public class Environment {
         }
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
+
+    /**
+     * Returns the value of name in the ancestor environment
+     * distant distance from this.
+     * @param distance
+     * @param name
+     */
+    Object getAt(int distance, String name) {
+        return ancestor(distance).values.get(name);
+    }
+
+    void assignAt(int distance, Token name, Object value) {
+        ancestor(distance).values.put(name.lexeme, value);
+    }
+
+    /**
+     * @param distance
+     * @return the ancestor environment distant distance from this.
+     */
+    private Environment ancestor(int distance) {
+        Environment environment = this;
+        for (int i = distance - 1; i >= 0; --i) {
+            environment = environment.enclosing;
+        }
+        return environment;
+    }
 }

@@ -18,7 +18,8 @@ public abstract class Stmt {
 	}
 
 	public static class Break extends Stmt {
-		public Break() {
+		public Break(Token keyword) {
+			this.keyword = keyword;
 		}
 
 		@Override
@@ -26,6 +27,7 @@ public abstract class Stmt {
 			return visitor.visitBreakStmt(this);
 		}
 
+		public final Token keyword;
 	}
 
 	public static class While extends Stmt {

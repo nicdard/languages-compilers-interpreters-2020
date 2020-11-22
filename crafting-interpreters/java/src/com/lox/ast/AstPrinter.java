@@ -3,7 +3,6 @@ package com.lox.ast;
 import com.lox.Evaluator;
 import com.lox.Token;
 
-import javax.print.DocFlavor;
 import java.util.List;
 
 public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor<String> {
@@ -13,6 +12,11 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
         for (Stmt statement : statements) {
             System.out.println(statement.accept(this));
         }
+    }
+
+    @Override
+    public void resolve(Expr expr, int distance) {
+        // TODO add maps of locals and print the whole information after the AST.
     }
 
     @Override

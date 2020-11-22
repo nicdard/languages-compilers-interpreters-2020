@@ -4,7 +4,9 @@ import com.lox.ast.Expr;
 import com.lox.ast.Stmt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Performs a post-order traversal to evaluate the AST.
@@ -17,6 +19,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
 
     final Environment globals = new Environment();
     private Environment environment = globals;
+    private final Map<Expr, Integer> locals = new HashMap<>();
 
     Interpreter() {
         globals.define("clock", new LoxCallable() {
@@ -130,7 +133,12 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = evaluate(expr.value);
-        environment.assign(expr.name, value);
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            environment.assignAt(distance, expr.name, value);
+        } else {
+            globals.assign(expr.name, value);
+        }
         return value;
     }
 
@@ -252,7 +260,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return environment.get(expr.name);
+        return lookupVariable(expr.name, expr);
     }
 
     private Void execute(Stmt stmt) {
@@ -343,5 +351,28 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
             return text;
         }
         return object.toString();
+    }
+
+    /**
+     * Stores information about the nesting of each expression
+     * @param expr
+     * @param depth
+     */
+    public void resolve(Expr expr, int depth) {
+        locals.put(expr, depth);
+    }
+
+    /**
+     * @param name
+     * @param expr
+     * @return the variable value from the right environment.
+     */
+    private Object lookupVariable(Token name, Expr expr) {
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            return environment.getAt(distance, name.lexeme);
+        } else {
+            return globals.get(name);
+        }
     }
 }

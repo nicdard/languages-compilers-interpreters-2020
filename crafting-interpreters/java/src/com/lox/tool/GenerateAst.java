@@ -29,7 +29,7 @@ public class GenerateAst {
         ));
 
         defineAst(outputDir, "Stmt", Arrays.asList(
-            "Break      : ",
+            "Break      : Token keyword",
             "While      : Expr condition, Stmt body",
             "If         : Expr condition, Stmt thenBranch," +
                         " Stmt elseBranch",

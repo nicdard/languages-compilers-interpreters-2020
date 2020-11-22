@@ -104,7 +104,9 @@ public class Lox {
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
-
+        if (hadError) return;
+        Resolver resolver = new Resolver(evaluator);
+        resolver.resolve(statements);
         if (hadError) return;
         evaluator.interpret(statements);
     }
@@ -116,9 +118,9 @@ public class Lox {
     }
     public static void error(Token token, String message) {
         if (token.type == TokenType.EOF) {
-            report(token.line, " at end", message);
+            report(token.line, "at end", message);
         } else {
-            report(token.line, " at '" + token.lexeme + "'", message);
+            report(token.line, "at '" + token.lexeme + "'", message);
         }
     }
 
