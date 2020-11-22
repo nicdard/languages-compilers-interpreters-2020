@@ -9,5 +9,5 @@ public interface Evaluator {
 
     void interpret(List<Stmt> statements);
 
-    void resolve(Expr expr, int distance);
+    void resolve(Expr expr, int distance, int slot);
 }

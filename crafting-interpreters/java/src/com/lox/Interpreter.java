@@ -17,12 +17,15 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
         BreakException() { super(null, null, false, false); }
     }
 
-    final Environment globals = new Environment();
-    private Environment environment = globals;
+    private final Map<String, Object> globals = new HashMap<>();
+    private Environment environment;
+    /** */
     private final Map<Expr, Integer> locals = new HashMap<>();
+    /** */
+    private final Map<Expr, Integer> slots = new HashMap<>();
 
     Interpreter() {
-        globals.define("clock", new LoxCallable() {
+        globals.put("clock", new LoxCallable() {
             @Override
             public int arity() {
                 return 0;
@@ -102,7 +105,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
         LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.function, environment);
-        environment.define(stmt.name.lexeme, function);
+        define(stmt.name, function);
         return null;
     }
 
@@ -126,7 +129,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
         if (stmt.initializer != null) {
             value = evaluate(stmt.initializer);
         }
-        environment.define(stmt.name.lexeme, value);
+        define(stmt.name, value);
         return null;
     }
 
@@ -135,9 +138,9 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
         Object value = evaluate(expr.value);
         Integer distance = locals.get(expr);
         if (distance != null) {
-            environment.assignAt(distance, expr.name, value);
+            environment.assignAt(distance, slots.get(expr), value);
         } else {
-            globals.assign(expr.name, value);
+            globals.put(expr.name.lexeme, value);
         }
         return value;
     }
@@ -358,8 +361,9 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
      * @param expr
      * @param depth
      */
-    public void resolve(Expr expr, int depth) {
+    public void resolve(Expr expr, int depth, int slot) {
         locals.put(expr, depth);
+        slots.put(expr, slot);
     }
 
     /**
@@ -370,9 +374,17 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
     private Object lookupVariable(Token name, Expr expr) {
         Integer distance = locals.get(expr);
         if (distance != null) {
-            return environment.getAt(distance, name.lexeme);
+            return environment.getAt(distance, slots.get(expr));
         } else {
-            return globals.get(name);
+            return globals.get(name.lexeme);
+        }
+    }
+
+    private void define(Token name, Object value) {
+        if (environment != null) {
+            environment.define(value);
+        } else {
+            globals.put(name.lexeme, value);
         }
     }
 }

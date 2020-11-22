@@ -15,7 +15,7 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     }
 
     @Override
-    public void resolve(Expr expr, int distance) {}
+    public void resolve(Expr expr, int distance, int slot) {}
 
     @Override
     public String visitAssignExpr(Expr.Assign expr) {

@@ -1,11 +1,11 @@
 package com.lox;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Environment {
     final Environment enclosing;
-    private final Map<String, Object> values = new HashMap<>();
+    private final List<Object> values = new ArrayList<>();
 
     Environment() {
         enclosing = null;
@@ -18,59 +18,24 @@ public class Environment {
     /**
      * Defines a new name (variable) in the current environment.
      * Definition of a new name can happen only in the current scope.
-     * @param name
      * @param value
      */
-    void define(String name, Object value) {
-        values.put(name, value);
-    }
-
-    /**
-     * Lookups in the environment chain to and returns the value for name.
-     * @param name
-     * @throws RuntimeError if name is not found in any scope.
-     */
-    Object get(Token name) {
-        if (values.containsKey(name.lexeme)) {
-            return values.get(name.lexeme);
-        }
-        if (enclosing != null) {
-            return enclosing.get(name);
-        } else {
-            throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
-        }
-    }
-
-    /**
-     * Assigns value to an existing name.
-     * @param name
-     * @param value
-     * @throws RuntimeError if name is not already defined.
-     */
-    void assign(Token name, Object value) {
-        if (values.containsKey(name.lexeme)) {
-            values.put(name.lexeme,value);
-            return;
-        }
-        if (enclosing != null) {
-            enclosing.assign(name, value);
-            return;
-        }
-        throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
+    void define(Object value) {
+        values.add(value);
     }
 
     /**
      * Returns the value of name in the ancestor environment
      * distant distance from this.
      * @param distance
-     * @param name
+     * @param slot
      */
-    Object getAt(int distance, String name) {
-        return ancestor(distance).values.get(name);
+    Object getAt(int distance, int slot) {
+        return ancestor(distance).values.get(slot);
     }
 
-    void assignAt(int distance, Token name, Object value) {
-        ancestor(distance).values.put(name.lexeme, value);
+    void assignAt(int distance, int slot, Object value) {
+        ancestor(distance).values.set(slot, value);
     }
 
     /**
@@ -83,5 +48,15 @@ public class Environment {
             environment = environment.enclosing;
         }
         return environment;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append(values.toString());
+        if (enclosing != null) {
+            result.append(" -> ").append(enclosing.toString());
+        }
+        return result.toString();
     }
 }

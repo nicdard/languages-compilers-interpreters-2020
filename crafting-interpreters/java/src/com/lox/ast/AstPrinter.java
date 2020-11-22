@@ -15,7 +15,7 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     }
 
     @Override
-    public void resolve(Expr expr, int distance) {
+    public void resolve(Expr expr, int distance, int slot) {
         // TODO add maps of locals and print the whole information after the AST.
     }
 
