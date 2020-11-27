@@ -1,0 +1,5 @@
+this.ciao = "Hello";
+
+fun notAMethod() {
+    print this;
+}

@@ -45,6 +45,13 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     }
 
     @Override
+    public String visitGetExpr(Expr.Get expr) {
+        return expr.name.lexeme + " "
+                + expr.object.accept(this) + " "
+                + "get";
+    }
+
+    @Override
     public String visitBinaryExpr(Expr.Binary expr) {
         return expr.left.accept(this) + " "
                 + expr.right.accept(this) + " "
@@ -76,6 +83,19 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
         return expr.left.accept(this) + " "
                 + expr.right.accept(this) + " "
                 + expr.operator.lexeme;
+    }
+
+    @Override
+    public String visitSetExpr(Expr.Set expr) {
+        return expr.name.lexeme + " "
+                + expr.value.accept(this) + " "
+                + expr.object.accept(this) + " "
+                + "set";
+    }
+
+    @Override
+    public String visitThisExpr(Expr.This expr) {
+        return expr.keyword.lexeme;
     }
 
     @Override
@@ -126,6 +146,11 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
         }
         builder.append(" )");
         return builder.toString();
+    }
+
+    @Override
+    public String visitClassStmt(Stmt.Class stmt) {
+        return stmt.name + " class";
     }
 
     @Override

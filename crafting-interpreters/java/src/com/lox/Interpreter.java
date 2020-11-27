@@ -84,6 +84,23 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
         return null;
     }
 
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt) {
+        Map<String, LoxFunction> methods = new HashMap<>();
+        for (Stmt.Function method : stmt.methods) {
+            LoxFunction function = new LoxFunction(
+                    null,
+                    method.function,
+                    environment,
+                    method.name.lexeme.equals("init")
+            );
+            methods.put(method.name.lexeme, function);
+        }
+        LoxClass kclass = new LoxClass(stmt.name.lexeme, methods);
+        define(stmt.name, kclass);
+        return null;
+    }
+
     void executeBlock(List<Stmt> stmts, Environment environment) {
         Environment previous = this.environment;
         try {
@@ -104,7 +121,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.function, environment);
+        LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.function, environment, false);
         define(stmt.name, function);
         return null;
     }
@@ -174,6 +191,15 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
         return function.call(this, arguments);
     }
 
+    @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        Object object = evaluate(expr.object);
+        if (object instanceof LoxInstance) {
+            return ((LoxInstance) object).get(expr.name);
+        }
+        throw new RuntimeError(expr.name, "Only instances have properties.");
+    }
+
     /**
      * Evaluates a binary operator: first we evaluate both left and right
      * subexpressions, then we perform the operation.
@@ -224,7 +250,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
 
     @Override
     public Object visitFunctionExpr(Expr.Function expr) {
-        return new LoxFunction(null, expr, environment);
+        return new LoxFunction(null, expr, environment, false);
     }
 
     @Override
@@ -246,6 +272,22 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
             if (!isTruthy(left)) return left;
         }
         return evaluate(expr.right);
+    }
+
+    @Override
+    public Object visitSetExpr(Expr.Set expr) {
+        Object object = evaluate(expr.object);
+        if (!(object instanceof LoxInstance)) {
+            throw new RuntimeError(expr.name, "Only instances have fields.");
+        }
+        Object value = evaluate(expr.value);
+        ((LoxInstance) object).set(expr.name, value);
+        return value;
+    }
+
+    @Override
+    public Object visitThisExpr(Expr.This expr) {
+        return lookupVariable(expr.keyword, expr);
     }
 
     @Override

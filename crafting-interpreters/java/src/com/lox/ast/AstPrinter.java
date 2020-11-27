@@ -30,6 +30,11 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     }
 
     @Override
+    public String visitGetExpr(Expr.Get expr) {
+        return parenthesize2("get", expr.name, expr.object);
+    }
+
+    @Override
     public String visitBinaryExpr(Expr.Binary expr) {
         return parenthesize(expr.operator.lexeme, expr.left, expr.right);
     }
@@ -72,6 +77,16 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
     }
 
     @Override
+    public String visitSetExpr(Expr.Set expr) {
+        return parenthesize2("set", expr.name, expr.object, expr.value);
+    }
+
+    @Override
+    public String visitThisExpr(Expr.This expr) {
+        return expr.keyword.lexeme;
+    }
+
+    @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return parenthesize(expr.operator.lexeme, expr.right);
     }
@@ -110,6 +125,11 @@ public class AstPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visitor
         }
         builder.append(')');
         return builder.toString();
+    }
+
+    @Override
+    public String visitClassStmt(Stmt.Class stmt) {
+        return parenthesize2("class", stmt.name);
     }
 
     @Override

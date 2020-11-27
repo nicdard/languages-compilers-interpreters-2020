@@ -9,11 +9,14 @@ public abstract class Expr {
 		R visitAssignExpr(Assign expr);
 		R visitTernaryExpr(Ternary expr);
 		R visitCallExpr(Call expr);
+		R visitGetExpr(Get expr);
 		R visitBinaryExpr(Binary expr);
 		R visitFunctionExpr(Function expr);
 		R visitGroupingExpr(Grouping expr);
 		R visitLiteralExpr(Literal expr);
 		R visitLogicalExpr(Logical expr);
+		R visitSetExpr(Set expr);
+		R visitThisExpr(This expr);
 		R visitUnaryExpr(Unary expr);
 		R visitVariableExpr(Variable expr);
 	}
@@ -65,6 +68,21 @@ public abstract class Expr {
 		public final Expr callee;
 		public final Token paren;
 		public final List<Expr> arguments;
+	}
+
+	public static class Get extends Expr {
+		public Get(Expr object, Token name) {
+			this.object = object;
+			this.name = name;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitGetExpr(this);
+		}
+
+		public final Expr object;
+		public final Token name;
 	}
 
 	public static class Binary extends Expr {
@@ -140,6 +158,36 @@ public abstract class Expr {
 		public final Expr left;
 		public final Token operator;
 		public final Expr right;
+	}
+
+	public static class Set extends Expr {
+		public Set(Expr object, Token name, Expr value) {
+			this.object = object;
+			this.name = name;
+			this.value = value;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitSetExpr(this);
+		}
+
+		public final Expr object;
+		public final Token name;
+		public final Expr value;
+	}
+
+	public static class This extends Expr {
+		public This(Token keyword) {
+			this.keyword = keyword;
+		}
+
+		@Override
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitThisExpr(this);
+		}
+
+		public final Token keyword;
 	}
 
 	public static class Unary extends Expr {
