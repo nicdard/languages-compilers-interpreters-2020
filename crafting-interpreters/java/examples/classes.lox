@@ -38,3 +38,12 @@ class Foo {
 
 var foo = Foo(12);
 print foo.init(10);
+
+class Math {
+    class square(n) {
+        return n * n;
+    }
+
+}
+
+print Math.square(3);

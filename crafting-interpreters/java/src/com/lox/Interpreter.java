@@ -86,6 +86,18 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
 
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
+        Map<String, LoxFunction> classMethods = new HashMap<>();
+        for (Stmt.Function classMethod : stmt.classMethods) {
+            LoxFunction function = new LoxFunction(
+                    null,
+                    classMethod.function,
+                    environment,
+                    false
+            );
+            classMethods.put(classMethod.name.lexeme, function);
+        }
+        LoxClass metaclass = new LoxClass(null,
+                stmt.name.lexeme + " metaclass", classMethods);
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
             LoxFunction function = new LoxFunction(
@@ -96,7 +108,7 @@ public class Interpreter implements Evaluator, Expr.Visitor<Object>, Stmt.Visito
             );
             methods.put(method.name.lexeme, function);
         }
-        LoxClass kclass = new LoxClass(stmt.name.lexeme, methods);
+        LoxClass kclass = new LoxClass(metaclass, stmt.name.lexeme, methods);
         define(stmt.name, kclass);
         return null;
     }

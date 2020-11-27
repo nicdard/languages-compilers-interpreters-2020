@@ -3,7 +3,7 @@ declaration     → classDecl
                 | varDecl
                 | funDecl
                 | statement ;
-classDecl       → "class" IDENTIFIER "{" function* "}"
+classDecl       → "class" IDENTIFIER "{" ( function | "class" function )* "}" ;
 funDecl         → "fun" function ;
 function        → IDENTIFIER "(" parameters? ")" block ;
 parameters      → IDENTIFIER ( "," IDENTIFIER )* ;

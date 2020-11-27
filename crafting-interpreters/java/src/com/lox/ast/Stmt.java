@@ -77,9 +77,10 @@ public abstract class Stmt {
 	}
 
 	public static class Class extends Stmt {
-		public Class(Token name, List<Stmt.Function> methods) {
+		public Class(Token name, List<Stmt.Function> methods, List<Stmt.Function> classMethods) {
 			this.name = name;
 			this.methods = methods;
+			this.classMethods = classMethods;
 		}
 
 		@Override
@@ -89,6 +90,7 @@ public abstract class Stmt {
 
 		public final Token name;
 		public final List<Stmt.Function> methods;
+		public final List<Stmt.Function> classMethods;
 	}
 
 	public static class Expression extends Stmt {
