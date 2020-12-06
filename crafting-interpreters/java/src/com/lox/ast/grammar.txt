@@ -3,7 +3,8 @@ declaration     → classDecl
                 | varDecl
                 | funDecl
                 | statement ;
-classDecl       → "class" IDENTIFIER "{" ( function | "class" function )* "}" ;
+classDecl       → "class" IDENTIFIER ( "<" IDENTIFIER )?
+                  "{" ( function | "class" function )* "}" ;
 funDecl         → "fun" function ;
 function        → IDENTIFIER "(" parameters? ")" block ;
 parameters      → IDENTIFIER ( "," IDENTIFIER )* ;
@@ -45,6 +46,7 @@ primary         → NUMBER | STRING
                 | "true" | "false" | "nil"
                 | "(" expression ")"
                 | IDENTIFIER // Access a variable
-                | funExpression ;
+                | funExpression
+                | "super" "." IDENTIFIER;
 funExpression   → "fun" "(" parameters? ")" block ;
                 | assignment ;

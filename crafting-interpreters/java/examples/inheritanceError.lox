@@ -1,0 +1,7 @@
+super.hello();
+
+class A {
+    method() {
+        super.method();
+    }
+}

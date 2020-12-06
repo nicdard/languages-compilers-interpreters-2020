@@ -94,6 +94,13 @@ public class AstRPNPrinter implements Evaluator, Expr.Visitor<String>, Stmt.Visi
     }
 
     @Override
+    public String visitSuperExpr(Expr.Super expr) {
+        return expr.method.lexeme + " "
+                + expr.keyword.lexeme + " "
+                + "call";
+    }
+
+    @Override
     public String visitThisExpr(Expr.This expr) {
         return expr.keyword.lexeme;
     }

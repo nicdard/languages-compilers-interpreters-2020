@@ -30,7 +30,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     private enum ClassType {
         NONE,
-        CLASS
+        CLASS,
+        SUBCLASS
     }
 
     private static class Variable {
@@ -126,6 +127,17 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitSuperExpr(Expr.Super expr) {
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword, "Can't use 'super' outside of a class.");
+        } else if (currentClass != ClassType.SUBCLASS) {
+            Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass.");
+        }
+        resolveLocal(expr, expr.keyword, true);
+        return null;
+    }
+
+    @Override
     public Void visitThisExpr(Expr.This expr) {
         if (currentClass == ClassType.NONE) {
             Lox.error(expr.keyword, "Can't use 'this' outside of a class.");
@@ -192,6 +204,21 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         currentClass = ClassType.CLASS;
         declare(stmt.name);
         define(stmt.name);
+        if (stmt.superclass != null
+            && stmt.name.lexeme.equals(stmt.superclass.name.lexeme)
+        ) {
+            Lox.error(
+                    stmt.superclass.name,
+                    "A class can't inherit from itself"
+            );
+        }
+        if (stmt.superclass != null) {
+            currentClass = ClassType.SUBCLASS;
+            beginScope();
+            Map<String, Variable> scope = scopes.peek();
+            scope.put("super", new Variable(stmt.superclass.name, scope.size(), Variable.VariableState.READ));
+            resolve(stmt.superclass);
+        }
         beginScope();
         Map<String, Variable> scope = scopes.peek();
         scope.put("this", new Variable(stmt.name, scope.size(), Variable.VariableState.READ));
@@ -209,6 +236,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             endScope();
         }
         endScope();
+        if (stmt.superclass != null) endScope();
         currentClass = enclosingClass;
         return null;
     }
