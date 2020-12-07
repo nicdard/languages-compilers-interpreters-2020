@@ -4,5 +4,6 @@ automata
 
 .idea
 **/out
+**/build
 out
 .iml
