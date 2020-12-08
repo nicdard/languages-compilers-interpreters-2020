@@ -12,6 +12,16 @@ typedef enum {
     OP_CONSTANT,
     // Retrieves a constant indexed with 3-byte long address, using little-endian encoding.
     OP_CONSTANT_LONG,
+    // Unary negation arithmetic operator.
+    OP_NEGATE,
+    // Pops two element from the stack and pushes back the sum of them.
+    OP_ADD,
+    // Pops two element from the stack and pushes back the difference of them.
+    OP_SUBTRACT,
+    // Pops two element from the stack and pushes back the product of them.
+    OP_MULTIPLY,
+    // Pops two element from the stack and pushes back the quotient of them.
+    OP_DIVIDE,
     OP_RETURN
 } OpCode;
 
