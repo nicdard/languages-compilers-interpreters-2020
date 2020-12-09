@@ -48,11 +48,11 @@ static InterpretResult run() {
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
 #define READ_LONG_CONSTANT(index) (vm.chunk->constants.values[index])
+// We do not pop and push into the stack the second operator to be more efficient.
 #define BINARY_OP(op) \
     do { \
         double b = pop(); \
-        double a = pop(); \
-        push(a op b); \
+        *(vm.stackTop - 1) = *(vm.stackTop - 1) op b; \
     } while (false)
 
     while (true) {
@@ -81,7 +81,7 @@ static InterpretResult run() {
                 push(constant);
                 break;
             }
-            case OP_NEGATE: push(-pop()); break;
+            case OP_NEGATE: *(vm.stackTop - 1) *= (-1); break;
             case OP_ADD: BINARY_OP(+); break;
             case OP_SUBTRACT: BINARY_OP(-); break;
             case OP_MULTIPLY: BINARY_OP(*); break;

@@ -7,7 +7,9 @@ int main(int argc, const char* argv[]) {
     initVM();
     Chunk chunk;
     initChunk(&chunk);
+
     writeConstant(&chunk, 45.2, 123);
+    writeChunk(&chunk, OP_NEGATE, 123);
     writeConstant(&chunk, 3.4, 123);
     writeChunk(&chunk, OP_ADD, 123);
     writeConstant(&chunk, 5.6, 123);
