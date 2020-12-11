@@ -43,7 +43,7 @@ void freeVM();
 /**
  * Interprets a chunk of bytecode.
  */
-InterpretResult interpret(Chunk* chunk);
+InterpretResult interpret(const char* source);
 /**
  * Adds value on top of the stack.
  */
