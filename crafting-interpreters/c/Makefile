@@ -37,11 +37,11 @@ $(BUILD_DIR)/$(NAME)/%.o: $(SOURCE_DIR)/%.c $(HEADERS)
 
 # Compile a debug build of clox.
 debug:
-	@ make . NAME=cloxd MODE=debug SOURCE_DIR=c
+	@ make . NAME=cloxd MODE=debug SOURCE_DIR=src
 
 # Compile the C interpreter.
 clox:
-	@ make . NAME=clox MODE=release SOURCE_DIR=c
+	@ make . NAME=clox MODE=release SOURCE_DIR=src
 	# @ cp build/clox clox # For convenience, copy the interpreter to the top level.
 
 

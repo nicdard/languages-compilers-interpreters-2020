@@ -8,3 +8,6 @@ Given a numeric opcode, we need to get to the right C code that implements that 
 * direct threaded code
 * jump table
 * computed goto
+
+# Parsing
+Vaughan Pratt’s “top-down operator precedence parsing”: http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/
