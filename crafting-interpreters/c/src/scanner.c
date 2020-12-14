@@ -94,6 +94,12 @@ Token scanToken() {
         case '{': return makeToken(TOKEN_LEFT_BRACE);
         case '}': return makeToken(TOKEN_RIGHT_BRACE);
         case ';': return makeToken(TOKEN_SEMICOLON);
+        case ',': return makeToken(TOKEN_COMMA);
+        case '.': return makeToken(TOKEN_DOT);
+        case '-': return makeToken(TOKEN_MINUS);
+        case '+': return makeToken(TOKEN_PLUS);
+        case '/': return makeToken(TOKEN_SLASH);
+        case '*': return makeToken(TOKEN_STAR);
         case '!': return makeToken(match('=') ? TOKEN_BANG : TOKEN_BANG_EQUAL);
         case '<': return makeToken(match('=') ? TOKEN_LESS : TOKEN_LESS_EQUAL);
         case '>': return makeToken(match('=') ? TOKEN_GREATER : TOKEN_GREATER_EQUAL);
@@ -105,7 +111,7 @@ Token scanToken() {
 
 static Token string() {
     while (peek() != '"' && !isAtEnd()) {
-        if (peek() == '\n') ++scanner.line;
+        if (peek() == '\n') scanner.line++;
         advance();
     }
     if (isAtEnd()) return errorToken("Unterminated string");
