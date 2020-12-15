@@ -10,6 +10,16 @@
 typedef enum {
     // Retrieves a constant indexed with 1-byte long address.
     OP_CONSTANT,
+    // To optimise we use three dedicated instructions for those constants.
+    OP_NIL,
+    OP_TRUE,
+    OP_FALSE,
+    // Pops two element from the stack and pushes back the the constant true if they are equal.
+    OP_EQUAL,
+    // Pops two element from the stack and pushes back the the constant true if the first is greater than the second.
+    OP_GREATER,
+    // Pops two element from the stack and pushes back the the constant true if the first is smaller than the second.
+    OP_LESS,
     // Retrieves a constant indexed with 3-byte long address, using little-endian encoding.
     OP_CONSTANT_LONG,
     // Unary negation arithmetic operator.
@@ -22,6 +32,8 @@ typedef enum {
     OP_MULTIPLY,
     // Pops two element from the stack and pushes back the quotient of them.
     OP_DIVIDE,
+    // Logical not, pops one element from the stack and pushes back its logical negation.
+    OP_NOT,
     OP_RETURN
 } OpCode;
 

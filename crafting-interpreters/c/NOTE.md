@@ -11,3 +11,11 @@ Given a numeric opcode, we need to get to the right C code that implements that 
 
 # Parsing
 Vaughan Pratt’s “top-down operator precedence parsing”: http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/
+
+# Type system
+* statically typed
+* dinamically typed
+* unityped
+
+# Comparisons
+Is a <= b always the same as !(a > b)? According to IEEE 754, all comparison operators return false when an operand is NaN. That means NaN <= 1 is false and NaN > 1 is also false. But our desugaring assumes the latter is always the negation of the former.
