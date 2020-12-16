@@ -21,6 +21,7 @@ typedef struct {
     Value stack[STACK_MAX];
     // Reference to the head of the stack, which is the next free slot on top of the stack itself.
     Value* stackTop;
+    Obj* objects;
 } VM;
 
 /**
@@ -32,6 +33,7 @@ typedef enum {
     INTERPRET_RUNTIME_ERROR
 } InterpretResult;
 
+extern VM vm;
 /**
  * Creates the VM.
  */

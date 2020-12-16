@@ -4,6 +4,17 @@
 #include "common.h"
 
 /**
+ * Allocates the given amout of memeory for the requested type.
+ */
+#define ALLOCATE(type, count) \
+    (type*)reallocate(NULL, 0, sizeof(type) * (count))
+
+/**
+ * Frees the memeory given a pointer and its type.
+ */
+#define FREE(type, pointer) reallocate(pointer, sizeof(type), 0)
+
+/**
  * Calculate a new capacity given the current one.
  * In order to get oprimised performance it scales based on the old size.
  */
@@ -34,5 +45,9 @@
  *  != 0    | > oldSize | Grow existing allocation
  */
 void* reallocate(void* pointer, size_t oldSize, size_t newSize);
+/**
+ * Frees the memeory associated to the allocated objects in the VM.
+ */
+void freeObjects();
 
 #endif
