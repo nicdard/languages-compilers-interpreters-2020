@@ -43,10 +43,12 @@ VM vm;
 
 void initVM() {
     resetStack();
+    initTable(&vm.strings);
 }
 
 void freeVM() {
     freeObjects();
+    freeTable(&vm.strings);
 }
 
 InterpretResult interpret(const char* source) {
