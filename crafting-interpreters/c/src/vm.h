@@ -22,6 +22,8 @@ typedef struct {
     Value stack[STACK_MAX];
     // Reference to the head of the stack, which is the next free slot on top of the stack itself.
     Value* stackTop;
+    // Stores all global variables.
+    Table globals;
     // Stores all interned strings.
     Table strings;
     Obj* objects;

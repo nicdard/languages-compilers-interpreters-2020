@@ -34,6 +34,17 @@ typedef enum {
     OP_DIVIDE,
     // Logical not, pops one element from the stack and pushes back its logical negation.
     OP_NOT,
+    // Defines a global variable. Pops two elements from the stack, 
+    // the first is the initialiser expression, the second is the variable name.
+    OP_DEFINE_GLOBAL,
+    // Access a global variable by its name. The name is popped from the stack.
+    OP_GET_GLOBAL,
+    // 
+    OP_SET_GLOBAL,
+    // Pops the first element from the stack.
+    OP_POP,
+    // Pops and print the first element of the stack.
+    OP_PRINT,
     OP_RETURN
 } OpCode;
 

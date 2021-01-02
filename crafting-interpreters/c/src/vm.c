@@ -43,11 +43,13 @@ VM vm;
 
 void initVM() {
     resetStack();
+    initTable(&vm.globals);
     initTable(&vm.strings);
 }
 
 void freeVM() {
     freeObjects();
+    freeTable(&vm.globals);
     freeTable(&vm.strings);
 }
 
@@ -147,9 +149,47 @@ static InterpretResult run() {
             case OP_NOT: 
                 push(BOOL_VAL(isFalsey(pop()))); 
                 break;
-            case OP_RETURN: {
+            case OP_DEFINE_GLOBAL: {
+                Value initialiser = peek(0);
+                ObjString* name = AS_STRING(peek(1));
+                tableSet(&vm.globals, name, initialiser);
+                pop();
+                pop();
+                break;
+            }
+            case OP_GET_GLOBAL: {
+                ObjString* name = AS_STRING(peek(0));
+                Value value;
+                if (!tableGet(&vm.globals, name, &value)) {
+                    runtimeError("Undefined variable '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                pop();
+                push(value);
+                break;
+            }
+            case OP_SET_GLOBAL: {
+                Value value = peek(0);
+                ObjString* name = AS_STRING(peek(1));
+                if (tableSet(&vm.globals, name, value)) {
+                    // If the variable was not already defined, report a runtime error.
+                    tableDelete(&vm.globals, name);
+                    runtimeError("Undefined variable '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                pop();
+                pop();
+                // Assignement is an expression, setting a variable doesn’t pop the value off the stack.
+                push(value);
+                break;
+            }
+            case OP_POP: pop(); break;
+            case OP_PRINT: {
                 printValue(pop());
                 printf("\n");
+                break;
+            }
+            case OP_RETURN: {
                 return INTERPRET_OK;
             }
         } 
@@ -167,7 +207,7 @@ static void resetStack() {
 }
 
 static Value peek(int distance) {
-    return vm.stackTop[-1 -distance];
+    return vm.stackTop[-1 - distance];
 }
 
 static void runtimeError(const char* format, ...) {
