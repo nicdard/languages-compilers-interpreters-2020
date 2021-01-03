@@ -47,6 +47,8 @@ typedef enum {
     OP_POP,
     // Pops and print the first element of the stack.
     OP_PRINT,
+    // Always jump backward using the next two bytes as the offset of the jump.
+    OP_LOOP,
     // Always jump ahead using the next two bytes as the offset of the jump.
     OP_JUMP,
     // Pops the first element from the stack and uses it as the condition.

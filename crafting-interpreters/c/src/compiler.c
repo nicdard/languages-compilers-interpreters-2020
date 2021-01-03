@@ -78,8 +78,10 @@ static void varDeclaration();
  */
 static void statement();
 static void printStatement();
-static void ifStatement();
 static void block();
+static void ifStatement();
+static void whileStatement();
+static void forStatement();
 static void expressionStatement();
 /**
  * Parses a Lox grouping expression.
@@ -93,6 +95,14 @@ static void expression();
  * Parses a Lox's identifier expression.
  */
 static void variable(bool canAssign);
+/**
+ * Parses a Lox's and short-circuit expression.
+ */
+static void and_(bool canAssign);
+/**
+ * Parses a Lox's or short-circuit expression.
+ */
+static void or_(bool canAssign);
 /**
  * Parses a Lox's unary operation.
  */
@@ -194,7 +204,7 @@ ParseRule rules[] = {
     [TOKEN_IDENTIFIER]      = {variable,    NULL,   PREC_NONE},
     [TOKEN_STRING]          = {string,      NULL,   PREC_NONE},
     [TOKEN_NUMBER]          = {number,      NULL,   PREC_NONE},
-    [TOKEN_AND]             = {NULL,        NULL,   PREC_NONE},
+    [TOKEN_AND]             = {NULL,        and_,   PREC_AND},
     [TOKEN_CLASS]           = {NULL,        NULL,   PREC_NONE},
     [TOKEN_ELSE]            = {NULL,        NULL,   PREC_NONE},
     [TOKEN_FALSE]           = {literal,     NULL,   PREC_NONE},
@@ -202,7 +212,7 @@ ParseRule rules[] = {
     [TOKEN_FUN]             = {NULL,        NULL,   PREC_NONE},
     [TOKEN_IF]              = {NULL,        NULL,   PREC_NONE},
     [TOKEN_NIL]             = {literal,     NULL,   PREC_NONE},
-    [TOKEN_OR]              = {NULL,        NULL,   PREC_NONE},
+    [TOKEN_OR]              = {NULL,        or_,    PREC_OR},
     [TOKEN_PRINT]           = {NULL,        NULL,   PREC_NONE},
     [TOKEN_RETURN]          = {NULL,        NULL,   PREC_NONE},
     [TOKEN_SUPER]           = {NULL,        NULL,   PREC_NONE},
@@ -420,6 +430,10 @@ static void statement() {
         endScope();
     } else if (match(TOKEN_IF)) {
         ifStatement();
+    } else if (match(TOKEN_WHILE)) {
+        whileStatement();
+    } else if (match(TOKEN_FOR)) {
+        forStatement();
     } else {
         expressionStatement();
     }
@@ -437,6 +451,65 @@ static void ifStatement() {
     emitByte(OP_POP);
     if (match(TOKEN_ELSE)) statement();
     patchJump(elseJump);
+}
+
+static void emitLoop(int loopStart) {
+    emitByte(OP_LOOP);
+    int offset = currentChunk()->count - loopStart + 2;
+    if (offset > UINT16_MAX) error("Loop body to large.");
+    emitByte((offset >> 8) & 0xff);
+    emitByte(offset & 0xff);
+}
+
+static void whileStatement() {
+    int loopStart = currentChunk()->count;
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after while.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+    int endJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    statement();
+    emitLoop(loopStart);
+    patchJump(endJump);
+    emitByte(OP_POP);
+}
+
+static void forStatement() {
+    beginScope();
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+    if (match(TOKEN_SEMICOLON)) {
+        // Empty initialiser.
+    } else if (match(TOKEN_VAR)) {
+        varDeclaration();
+    } else {
+        expressionStatement();
+    }
+    // The initializer clause is executed only once.
+    int loopStart = currentChunk()->count;
+    int exitJump = -1;
+    if (!match(TOKEN_SEMICOLON)) {
+        expression();
+        consume(TOKEN_SEMICOLON, "Expect ';'.");
+        exitJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP);
+    }
+    if (!match(TOKEN_RIGHT_BRACE)) {
+        int bodyJump = emitJump(OP_JUMP);
+        int incrementStart = currentChunk()->count;
+        expression();
+        emitByte(OP_POP);
+        consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+        emitLoop(loopStart);
+        loopStart = incrementStart;
+        patchJump(bodyJump);
+    }
+    statement();
+    emitLoop(loopStart);
+    if (exitJump != -1) {
+        patchJump(exitJump);
+        emitByte(OP_POP);
+    }
+    endScope();
 }
 
 static void printStatement() {
@@ -483,6 +556,24 @@ static void namedVariable(Token name, bool canAssign) {
 
 static void variable(bool canAssign) {
     namedVariable(parser.previous, canAssign);
+}
+
+static void and_(bool canAssign) {
+    int endJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    parsePrecedence(PREC_AND);
+    patchJump(endJump);
+}
+
+static void or_(bool canAssign) {
+    int elseJump = emitJump(OP_JUMP_IF_FALSE);
+    int endJump = emitJump(OP_JUMP);
+    patchJump(elseJump);
+    // Remove the left falsey operand.
+    emitByte(OP_POP);
+    parsePrecedence(PREC_OR);
+    patchJump(endJump);
+
 }
 
 static void unary(bool canAssign) {
