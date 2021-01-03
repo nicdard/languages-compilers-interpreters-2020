@@ -19,3 +19,13 @@ Vaughan Pratt’s “top-down operator precedence parsing”: http://journal.stu
 
 # Comparisons
 Is a <= b always the same as !(a > b)? According to IEEE 754, all comparison operators return false when an operand is NaN. That means NaN <= 1 is false and NaN > 1 is also false. But our desugaring assumes the latter is always the negation of the former.
+
+# Stack based VM: statement vs expressions
+ Statements are required to have zero stack effect, after one statement is finished executing, the stack should be as tall as it was before.
+
+ Expressions produce and consume elements of the stack.
+
+# Emittig byte code for jumps
+ When we’re writing the OP_JUMP_IF_FALSE instruction’s operand, how do we know how far to jump? We haven’t compiled the then branch yet, so we don’t know how much bytecode it contains.
+ 
+To fix that, we use a classic trick called backpatching. We emit the jump instruction first with a placeholder offset operand. We keep track of where that half-finished instruction is. Next, we compile the then body. Once that’s done, we know how far to jump. So we go back and replace that placeholder offset with the real one now that we can calculate it. Sort of like sewing a patch onto the existing fabric of the compiled code.

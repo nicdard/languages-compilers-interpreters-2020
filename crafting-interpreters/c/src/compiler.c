@@ -78,6 +78,7 @@ static void varDeclaration();
  */
 static void statement();
 static void printStatement();
+static void ifStatement();
 static void block();
 static void expressionStatement();
 /**
@@ -251,6 +252,25 @@ static void endScope() {
     }
 }
 
+static int emitJump(uint8_t instruction) {
+    emitByte(instruction);
+    // We use two bytes for the jump offset operand. 
+    // A 16-bit offset lets us jump over up to 65,536 bytes of code, which should be enough for our needs.
+    emitByte(0xff);
+    emitByte(0xff);
+    return currentChunk()->count - 2;
+}
+
+static void patchJump(int offset) {
+    // -2 to adjust for the bytecode for the jump offset itself.
+    int jump = currentChunk()->count - offset - 2;
+    if (jump > UINT16_MAX) {
+        error("Too much code to jump over.");
+    }
+    currentChunk()->code[offset]        = (jump >> 8) & 0xff;
+    currentChunk()->code[offset + 1]    = jump & 0xff;
+}
+
 static void parsePrecedence(Precedence precedence) {
     advance();
     ParseFn prefixRule = getRule(parser.previous.type)->prefix;
@@ -298,10 +318,6 @@ static void synchronize() {
 static void declaration() {
     if (match(TOKEN_VAR)) {
         varDeclaration();
-    } else if (match(TOKEN_LEFT_BRACE)) {
-        beginScope();
-        block();
-        endScope();
     } else {
         statement();
     }
@@ -398,9 +414,29 @@ static void varDeclaration() {
 static void statement() {
     if (match(TOKEN_PRINT)) {
         printStatement();
+    } else if (match(TOKEN_LEFT_BRACE)) {
+        beginScope();
+        block();
+        endScope();
+    } else if (match(TOKEN_IF)) {
+        ifStatement();
     } else {
         expressionStatement();
     }
+}
+
+static void ifStatement() {
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after if.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+    int thenJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    statement();
+    int elseJump = emitJump(OP_JUMP);
+    patchJump(thenJump);
+    emitByte(OP_POP);
+    if (match(TOKEN_ELSE)) statement();
+    patchJump(elseJump);
 }
 
 static void printStatement() {

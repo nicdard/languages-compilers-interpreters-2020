@@ -1,0 +1,9 @@
+var a = 12;
+if (a == 5) {
+    a = a - 1;
+    print a;
+} else {
+    var b = 112;
+    print a + b;
+}
+print a;
