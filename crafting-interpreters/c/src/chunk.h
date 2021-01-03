@@ -39,8 +39,10 @@ typedef enum {
     OP_DEFINE_GLOBAL,
     // Access a global variable by its name. The name is popped from the stack.
     OP_GET_GLOBAL,
-    // 
+    // Sets the value of an already defined variable.
     OP_SET_GLOBAL,
+    OP_GET_LOCAL,
+    OP_SET_LOCAL,
     // Pops the first element from the stack.
     OP_POP,
     // Pops and print the first element of the stack.

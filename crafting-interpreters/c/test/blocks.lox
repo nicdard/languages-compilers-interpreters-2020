@@ -1,0 +1,12 @@
+{
+    var a = 1 + 2;
+    var b = 4;
+    {
+        print a + b;
+        var c = 10;
+        {
+            print c;
+        }
+    }
+    print a;
+}
