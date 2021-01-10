@@ -49,6 +49,9 @@ typedef enum {
     OP_PRINT,
     // Always jump backward using the next two bytes as the offset of the jump.
     OP_LOOP,
+    // Pops as many values from the stack as the next bytecode value indicates.
+    // Those values are the arguments of the function call.
+    OP_CALL,
     // Always jump ahead using the next two bytes as the offset of the jump.
     OP_JUMP,
     // Pops the first element from the stack and uses it as the condition.

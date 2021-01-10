@@ -29,3 +29,6 @@ Is a <= b always the same as !(a > b)? According to IEEE 754, all comparison ope
  When we’re writing the OP_JUMP_IF_FALSE instruction’s operand, how do we know how far to jump? We haven’t compiled the then branch yet, so we don’t know how much bytecode it contains.
  
 To fix that, we use a classic trick called backpatching. We emit the jump instruction first with a placeholder offset operand. We keep track of where that half-finished instruction is. Next, we compile the then body. Once that’s done, we know how far to jump. So we go back and replace that placeholder offset with the real one now that we can calculate it. Sort of like sewing a patch onto the existing fabric of the compiled code.
+
+# Continuations
+Many Lisp implementations dynamically allocate stack frames because it simplifies implementing continuations. If your language supports continuations, then function calls do not always have stack semantics. https://en.wikipedia.org/wiki/Continuation

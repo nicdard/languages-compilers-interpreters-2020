@@ -5,11 +5,6 @@
 #include "memory.h"
 #include "object.h"
 
-/**
- * Nicely prints an object.
- */
-static void printObject(Value value);
-
 void initValueArray(ValueArray* array) {
     array->capacity = 0;
     array->count = 0;
@@ -59,11 +54,3 @@ bool valuesEqual(Value a, Value b) {
         return false; // Unreachable.
     }
 }
-
-static void printObject(Value value) {
-    switch (OBJ_TYPE(value)) {
-        case OBJ_STRING:
-            printf("%s", AS_CSTRING(value));
-            break;
-    }
-} 

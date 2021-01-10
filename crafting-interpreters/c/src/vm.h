@@ -2,23 +2,42 @@
 #define vm_clox_h
 
 #include "chunk.h"
+#include "object.h"
 #include "table.h"
 #include "value.h"
 
 /**
+ * The maximum number of ongoing function calls.
+ */
+#define FRAMES_MAX 64
+/**
  * The maximum size of the VM's stack.
  */
-#define STACK_MAX 1024
+#define STACK_MAX (FRAMES_MAX * 1024)
+
+/**
+ * A function invocation.
+ */
+typedef struct {
+    // The invoked function.
+    ObjFunction* function;
+    // Store the address of this function.
+    // When the control flow is returned to this function
+    // we restart from the instruction pointed by ip.
+    uint8_t* ip;
+    // Pointer to the first slot inside the VM's value stack
+    // that this function invocation can use.
+    Value* slots;
+} CallFrame;
 
 /**
  * The VM executes a chunk of code.
  */
 typedef struct {
-    // The chunk of bytecode currently being executed.
-    Chunk* chunk;
-    // The location of the instruction about to be executed.
-    uint8_t* ip;
-    // The VM's stack.
+    // The frame call stack. Statically allocated for sped.
+    CallFrame frames[FRAMES_MAX];
+    int frameCount;
+    // The VM's value (operand) stack.
     Value stack[STACK_MAX];
     // Reference to the head of the stack, which is the next free slot on top of the stack itself.
     Value* stackTop;
