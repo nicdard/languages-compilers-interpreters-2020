@@ -32,3 +32,6 @@ To fix that, we use a classic trick called backpatching. We emit the jump instru
 
 # Continuations
 Many Lisp implementations dynamically allocate stack frames because it simplifies implementing continuations. If your language supports continuations, then function calls do not always have stack semantics. https://en.wikipedia.org/wiki/Continuation
+
+# Native Functions
+The reason we need new machinery is because, from the implementation’s perspective, native functions are different from Lox functions. When they are called, they don’t push a CallFrame, because there’s no bytecode code for that frame to point to. They have no bytecode chunk. Instead, they somehow reference a piece of native C code.
