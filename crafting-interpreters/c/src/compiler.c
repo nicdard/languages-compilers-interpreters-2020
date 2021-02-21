@@ -281,9 +281,9 @@ static ObjFunction* endCompiler() {
             : "<script>"
         );
     }
+#endif
     current = current->enclosing;
     return function;
-#endif
 }
 
 static void beginScope() {
