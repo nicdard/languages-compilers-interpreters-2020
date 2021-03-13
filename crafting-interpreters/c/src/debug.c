@@ -14,18 +14,24 @@ static int simpleInstruction(const char* name, int offset) {
     return offset + 1;
 }
 
-static int byteInstruction(const char* name, Chunk* chunk,int offset) {
+static int  byteInstruction(const char* name, Chunk* chunk,int offset) {
     uint8_t slot = chunk->code[offset + 1];
     printf("%-16s %4d\n", name, slot);
     return offset + 2; 
 }
 
+static uint8_t consumeConstantInstruction(Chunk* chunk, int* offset) {
+    uint8_t constant = chunk->code[*offset + 1];
+    *offset = *offset + 2;
+    return constant;
+}
+
 static int constantInstruction(const char* name, Chunk* chunk, int offset) {
-    uint8_t constant = chunk->code[offset + 1];
+    uint8_t constant = consumeConstantInstruction(chunk, &offset);
     printf("%-16s %4d '", name, constant);
     printValue(chunk->constants.values[constant]);
     printf("'\n");
-    return offset + 2;
+    return offset;
 }
 
 static int jumpInstruction(
@@ -40,11 +46,16 @@ static int jumpInstruction(
     return offset + 3;
 }
 
+static uint32_t consumeLongConstantInstruction(Chunk* chunk, int* offset) {
+    uint32_t constant = chunk->code[*offset + 1] |
+        (chunk->code[*offset + 2] << 8) |
+        (chunk->code[*offset + 3] << 16);
+    *offset = *offset + 4;
+    return constant;
+}
+
 static int longConstantInstruction(const char* name, Chunk* chunk, int offset) {
-    uint32_t constant = 
-        chunk->code[offset + 1] |
-        (chunk->code[offset + 2] << 8) |
-        (chunk->code[offset + 3] << 16);
+    uint32_t constant = consumeLongConstantInstruction(chunk, &offset);
     printf("%-16s %8d '", name, constant);
     printValue(chunk->constants.values[constant]);
     printf("'\n");
@@ -99,6 +110,12 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return byteInstruction("OP_GET_LOCAL", chunk, offset);
         case OP_SET_LOCAL:
             return byteInstruction("OP_SET_LOCAL", chunk, offset);
+        case OP_CLOSE_UPVALUE:
+            return simpleInstruction("OP_CLOSE_UPVALUE", offset);
+        case OP_GET_UPVALUE:
+            return byteInstruction("OP_GET_UPVALUE", chunk, offset);
+        case OP_SET_UPVALUE:
+            return byteInstruction("OP_SET_UPVALUE", chunk, offset);
         case OP_POP:
             return simpleInstruction("OP_POP", offset);
         case OP_PRINT:
@@ -110,7 +127,34 @@ int disassembleInstruction(Chunk* chunk, int offset) {
         case OP_JUMP_IF_FALSE:
             return jumpInstruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
         case OP_CALL:
-            return byteInstruction("OP_CALL",chunk, offset);
+            return byteInstruction("OP_CALL", chunk, offset);
+        case OP_CLOSURE: {
+            /*uint32_t constant;
+            uint8_t constantInstruction = chunk->code[++offset];
+            switch (constantInstruction) {
+                case OP_CONSTANT:
+                    constant = consumeConstantInstruction(chunk, &offset);
+                    break; 
+                case OP_CONSTANT_LONG:
+                    constant = consumeLongConstantInstruction(chunk, &offset);
+                    break;
+            }
+            printf("%-16s %8d ", "OP_CLOSURE", constant);
+            printValue(chunk->constants.values[constant]);
+            printf("\n");
+            return offset;
+            */
+            offset = byteInstruction("OP_CLOSURE", chunk, offset);
+            uint8_t upvalues = chunk->code[offset - 1];
+            for (int i = 0; i  < upvalues; ++i) {
+                int isLocal = chunk->code[offset++];
+                int index = chunk->code[offset++];
+                printf("%04d    |                     %s %d\n", 
+                    offset - 2, isLocal ? "local" : "upvalue", index);
+            }
+            return offset;
+            // ObjFunction* function = AS_FUNCTION(chunk->constants.values[constant]);
+        }
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:

@@ -43,6 +43,11 @@ typedef enum {
     OP_SET_GLOBAL,
     OP_GET_LOCAL,
     OP_SET_LOCAL,
+    // Hoists a stack value to the heap to let it be accessible by closures that 
+    // may need it. Pops the first operand from the stack.
+    OP_CLOSE_UPVALUE,
+    OP_GET_UPVALUE,
+    OP_SET_UPVALUE,
     // Pops the first element from the stack.
     OP_POP,
     // Pops and print the first element of the stack.
@@ -52,6 +57,12 @@ typedef enum {
     // Pops as many values from the stack as the next bytecode value indicates.
     // Those values are the arguments of the function call.
     OP_CALL,
+    // The next byte code represents the number n of upvalues for the closure.
+    // 2n bytes follow, each consecutive pair represents the locality and the index
+    // of an upvalue.
+    // It consumes also an operand from the stack, which is the function object for which
+    // a closure is build.  
+    OP_CLOSURE,
     // Always jump ahead using the next two bytes as the offset of the jump.
     OP_JUMP,
     // Pops the first element from the stack and uses it as the condition.

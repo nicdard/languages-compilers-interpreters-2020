@@ -19,8 +19,8 @@
  * A function invocation.
  */
 typedef struct {
-    // The invoked function.
-    ObjFunction* function;
+    // The invoked closure.
+    ObjClosure* closure;
     // Store the address of this function.
     // When the control flow is returned to this function
     // we restart from the instruction pointed by ip.
@@ -46,6 +46,7 @@ typedef struct {
     // Stores all interned strings.
     Table strings;
     Obj* objects;
+    ObjUpvalue* openUpvalues;
 } VM;
 
 /**
