@@ -35,3 +35,13 @@ Many Lisp implementations dynamically allocate stack frames because it simplifie
 
 # Native Functions
 The reason we need new machinery is because, from the implementation’s perspective, native functions are different from Lox functions. When they are called, they don’t push a CallFrame, because there’s no bytecode code for that frame to point to. They have no bytecode chunk. Instead, they somehow reference a piece of native C code.
+
+# Closure implementations
+Search for “closure conversion” or “lambda lifting”.
+
+**Upvalue**: a level of indirection, refers to a local variable in an enclosing function. Every closure maintains an array of upvalues, one for each surrounding local variable that the closure uses.
+
+* open upvalue: refer to an upvalue that points to a local variable still on the stack;
+* closed upvalue: when a variable which is enclosed in a closure moves to the heap.
+
+
