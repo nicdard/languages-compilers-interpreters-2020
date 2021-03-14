@@ -44,4 +44,21 @@ Search for “closure conversion” or “lambda lifting”.
 * open upvalue: refer to an upvalue that points to a local variable still on the stack;
 * closed upvalue: when a variable which is enclosed in a closure moves to the heap.
 
+# Garbadge Collectors
 
+References: The Garbage Collection Handbook: The Art of Automatic Memory Management brings together a wealth of knowledge gathered by automatic memory management researchers and developers over the past fifty years.
+
+**Conservative GC** is a special kind of collector that considers any piece of memory to be a pointer if the value in there looks like it could be an address.
+**Precise GC** knows exactly which words in memory are pointers and which store other kinds of values like numbers or strings.
+
+A value is reachable if there is some way for a user program to reference it, otherwise, it is unreachable.
+A **root** is any object that the VM can reach directly without going through a reference in some other object
+
+## Mark-and-seep
+Mark-sweep works in two phases:
+1. Marking: We start with the roots and traverse or trace through all of the objects those roots refer to. This is a classic graph traversal of all of the reachable objects. Each time we visit an object, we mark it in some way. (Implementations differ in how they record the mark.)
+2. Sweeping: Once the mark phase completes, every reachable object in the heap has been marked. That means any unmarked object is unreachable and ripe for reclamation. We go through all the unmarked objects and free each one.
+
+## Metrics
+* **Throughput** is the total fraction of time spent running user code versus doing garbage collection work.
+* **Latency** is the longest continuous chunk of time where the user’s program is completely paused while garbage collection happens. It’s a measure of how “chunky” the collector is.
