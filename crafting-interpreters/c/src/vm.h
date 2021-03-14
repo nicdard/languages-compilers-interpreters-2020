@@ -47,6 +47,13 @@ typedef struct {
     Table strings;
     Obj* objects;
     ObjUpvalue* openUpvalues;
+    int grayCount;
+    int grayCapacity;
+    Obj** grayStack;
+    // Running total of the number of bytes of managed memory the VM has allocated.
+    size_t bytesAllocated;
+    // The threshold over which the next GC is triggered.
+    size_t nextGC;
 } VM;
 
 /**

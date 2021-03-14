@@ -3,6 +3,7 @@
 
 #include "chunk.h"
 #include "memory.h"
+#include "vm.h"
 
 /**
  * Adds a new line information to the chunk.
@@ -51,7 +52,9 @@ void writeConstant(Chunk* chunk, Value value, int line) {
 }
 
 int addConstant(Chunk* chunk, Value constant) {
+    push(constant);
     writeValueArray(&chunk->constants, constant);
+    pop();
     return chunk->constants.count - 1;
 }
 

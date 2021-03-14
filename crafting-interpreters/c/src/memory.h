@@ -2,6 +2,7 @@
 #define clox_memory_h
 
 #include "common.h"
+#include "object.h"
 
 /**
  * Allocates the given amout of memeory for the requested type.
@@ -45,6 +46,13 @@
  *  != 0    | > oldSize | Grow existing allocation
  */
 void* reallocate(void* pointer, size_t oldSize, size_t newSize);
+
+void markObject(Obj* obj);
+void markValue(Value value);
+/**
+ * Starts the GC.
+ */
+void collectGarbage();
 /**
  * Frees the memeory associated to the allocated objects in the VM.
  */
