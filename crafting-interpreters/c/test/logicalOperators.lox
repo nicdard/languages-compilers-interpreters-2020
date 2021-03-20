@@ -1,5 +1,0 @@
-if ("as" == "as" and 12 == 10) {
-    print "then";
-} else {
-    print "else" or 12;
-}
