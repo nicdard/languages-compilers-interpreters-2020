@@ -1,5 +1,3 @@
-.vscode
-
 .idea
 **/out
 out
@@ -7,13 +5,18 @@ out
 
 # Ocaml
 *.annot
+# bytecode object
 *.cmo
+# bytecode library
 *.cma
-*.cmi
-*.a
+# interface object
+*.cmi 
+# asm object
 *.o
 *.cmx
 *.cmxs
+# native library
+*.a
 *.cmxa
 
 # ocamlbuild working directory
