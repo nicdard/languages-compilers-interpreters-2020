@@ -92,3 +92,27 @@ let is_function (r: (int * int) list): bool =
     | _ -> acc
   in List.sort (fun (f1, s1) (f2, s2) -> f1 - f2) r
   |> verify true;;
+
+
+(* Exercise 6 *)
+(**
+@param p
+@param q
+@return Return a string obtained by iterleaving 
+**)
+let mangle_string p q =
+  let chars_of_string s =
+    let rec helper_chars_of_string index l =
+      if index < 0 then l else helper_chars_of_string (index - 1) (s.[index]::l) 
+    in helper_chars_of_string (String.length s - 1) []
+  in let (p1, q1) = (chars_of_string p, chars_of_string q)
+  in List.combine p1 q1
+  |> List.map (fun (f, s) -> [f;s])
+  |> List.flatten
+  |> fun chars -> 
+    begin
+      let buf = Buffer.create 16 
+      in List.iter (Buffer.add_char buf) chars;
+      Buffer.contents buf
+    end;;
+
