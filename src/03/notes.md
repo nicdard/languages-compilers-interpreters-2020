@@ -57,3 +57,6 @@ We can define modules inline using the syntax: struct ... end.
 
 # Hash Table
 The imperative version of Map. The problem is that an Hash Table uses an hash function, so the Hashtbl.Make functor expects to receive a module providing an equal and an hash function. 
+
+# Dune - build system
+https://medium.com/@bobbypriambodo/starting-an-ocaml-app-project-using-dune-d4f74e291de8
