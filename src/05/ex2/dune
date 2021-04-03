@@ -1,0 +1,8 @@
+(executable 
+  (name calc))
+
+(ocamllex 
+  (modules lexer))
+
+(menhir 
+  (modules parser))
