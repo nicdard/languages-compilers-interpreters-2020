@@ -1,0 +1,10 @@
+(executable
+ (preprocess (pps ppx_deriving.show ppx_deriving.ord))
+ (name main))
+
+(menhir
+ (flags --explain)
+ (modules parser))
+
+(ocamllex
+ (modules lexer))
