@@ -81,4 +81,4 @@ mul  r5, r3, r4
 
 ## Exercise 4
 
-Implement a parser for the language *FUN* we presented in the previous lectures, and integrate it with the the interpreter and the lexer we already developed.
+Implement a parser for the language *FUN* we presented in the previous lectures, and integrate it with the interpreter and the lexer we have already developed.
