@@ -83,7 +83,7 @@ rule scanner = parse
     | '+'                   { make_token PLUS lexbuf }
     | '-'                   { make_token MINUS lexbuf }
     | '*'                   { make_token STAR lexbuf }
-    | '/'                   { make_token STAR lexbuf }
+    | '/'                   { make_token DIV lexbuf }
     | '='                   { make_token EQUAL lexbuf }
     | '<'                   { make_token MINUS lexbuf }
     | '('                   { make_token LPAR lexbuf }
