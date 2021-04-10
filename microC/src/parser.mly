@@ -88,6 +88,29 @@ stmtordec:
 stmt:
   | e = expression SEMICOLON
     { make_annotated_node (Expr e) $loc }
+  | b = block
+    { b }
+  | RETURN e = option(expression) SEMICOLON
+    { make_annotated_node (Return e) $loc }
+  | IF LPAR guard = expression RPAR t = stmt %prec NOELSE
+    { let empty_else_block = make_annotated_node (Block []) $loc in
+      make_annotated_node (If (guard, t, empty_else_block)) $loc }
+  | IF LPAR guard = expression RPAR t = stmt ELSE t2 = stmt
+    { make_annotated_node (If (guard, t, t2)) $loc }
+  | WHILE LPAR guard = expression RPAR body = block
+    { make_annotated_node (While (guard, body)) $loc }
+  | FOR LPAR init = option(expression) SEMICOLON g = option(expression) SEMICOLON incr = option(expression) RPAR body = stmt
+    { let true_lit = make_annotated_node (BLiteral true) $loc in
+      let true_expr = make_annotated_node (Expr true_lit) $loc in
+      let init_expr = make_annotated_node (Expr (Option.value init ~default:true_lit)) $loc in
+      let init_stmt = make_annotated_node (Stmt init_expr) $loc in
+      let incr_stmt = make_annotated_node (Stmt true_expr) $loc in
+      let body_stmt = make_annotated_node (Stmt body) $loc in
+      let for_body = make_annotated_node (Block [body_stmt; incr_stmt]) $loc in
+      let guard = Option.value g ~default:true_lit in
+      let loop = make_annotated_node (While (guard, for_body)) $loc in
+      let loop_stmt = make_annotated_node (Stmt loop) $loc in
+      make_annotated_node (Block [init_stmt; loop_stmt]) $loc }
 ;
 
 topvardecl:
@@ -158,6 +181,8 @@ rexpression:
     { a }
   | a = address
     { a }
+  | c = call
+    { c }
 ;
 
 lexpression:
@@ -179,10 +204,12 @@ lexpression:
 address:
   | ADDRESS lvalue = lexpression
     { make_annotated_node (Addr lvalue) $loc }
+;
 
 assign:
   | lhs = lexpression ASSIGN rvalue = expression
     { make_annotated_node (Assign (lhs, rvalue)) $loc }
+;
 
 grouping:
   | LPAR e = rexpression RPAR
@@ -242,3 +269,7 @@ nullptr:
   | NULL // Zero is an invalid value for a pointer, here we use the definition from stdlib.h
     { make_annotated_node (ILiteral 0) $loc }
 ;
+
+call:
+  | fname = LID LPAR args = separated_list(COMMA, expression) RPAR
+    { make_annotated_node (Call (fname, args)) $loc }

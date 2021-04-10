@@ -16,6 +16,12 @@ block ::=
 
 stmt ::=
     | expression SEMICOLON
+    | RETURN expression SEMICOLON
+    | block
+    | WHILE LPAR expression RPAR stmt
+    | FOR LPAR expression? SEMICOLON expression? SEMICOLON expression RPAR stmt
+    | IF LPAR expression RPAR stmt ELSE stmt
+    | IF LPAR expression RPAR stmt
 
 vardecl ::=
     | type vardesc
@@ -44,6 +50,7 @@ rexpression ::=
     | grouping
     | assign
     | address
+    | call
 
 lexpression ::=
     | LID
@@ -58,6 +65,9 @@ address ::=
 
 assign ::=
     | lexpression ASSIGN expression // an lvalue can appear either to the left or to the right, a rvalue only to the right
+
+call ::=
+    | LID LPAR ((expression COMMA)* expression)?  RPAR
 
 literal ::=
     | LINT
