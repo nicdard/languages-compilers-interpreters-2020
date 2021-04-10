@@ -6,6 +6,13 @@ program ::=
 
 topdecl ::=
     | vardecl SEMICOLON
+    | fundecl
+
+fundecl ::=
+    | type LID LPAR ((vardecl COLON)* vardecl)? RPAR block
+
+block ::=
+    | LBRACE (vardecl SEMICOLON)* RBRACE
 
 vardecl ::=
     | type vardesc

@@ -63,14 +63,34 @@ program:
 ;
 
 topdecl:
-  | v = vardecl SEMICOLON
+  | v = topvardecl
     { v }
+  | f = fundecl
+    { f }
 ;
+
+fundecl:
+  | typ = ctype fname = LID LPAR formals = separated_list(COMMA, vardecl) RPAR body = block
+    { make_annotated_node (Fundecl { typ; fname; formals; body }) $loc }
+
+block:
+  | LBRACE declarations = list(localvar) RBRACE
+    { make_annotated_node (Block declarations) $loc }
+
+topvardecl:
+  | v = vardecl SEMICOLON
+    { let (typ, id) = v in
+      make_annotated_node (Vardec (typ, id)) $loc }
+
+localvar:
+  | v = vardecl SEMICOLON
+    { let (typ, id) = v in
+      make_annotated_node (Dec (typ, id)) $loc }
 
 vardecl:
   | t = ctype var = vardesc
-    { let (type_constr, id) = var in
-      make_annotated_node (Vardec (type_constr t, id)) $loc }
+    { let (type_constr, v) = var in
+      ((type_constr t), v) }
 ;
 
 vardesc:
