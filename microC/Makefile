@@ -13,8 +13,11 @@ native: $(TARGET).native
 clean:
 	ocamlbuild -clean
 
+cleanall: clean
+	rm -rf ./test/*.dump
+
 test: clean default
 	@chmod +x ./test.sh
 	./test.sh
 
-.PHONY: clean default test
+.PHONY: clean default test cleanall
