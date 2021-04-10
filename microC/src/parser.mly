@@ -53,13 +53,54 @@ let make_annotated_node node loc = incr id; { loc = loc; node = node; id = !id }
 // %start program
 // %type <Ast.program> program    /* the parser returns a Ast.program value */
 %start program
-%type <Ast.expr> program
+%type <Ast.program> program
 
 %%
 
 program:
-  | e = expression EOF
-    { e }
+  | declarations = list(topdecl) EOF
+    { Prog(declarations) }
+;
+
+topdecl:
+  | v = vardecl SEMICOLON
+    { v }
+;
+
+vardecl:
+  | t = ctype var = vardesc
+    { let (type_constr, id) = var in
+      make_annotated_node (Vardec (type_constr t, id)) $loc }
+;
+
+vardesc:
+  | id = LID
+    { ((fun t -> t), id) }
+  | STAR var = vardesc
+    { let (constr, i) = var in
+      let pointer_constructor t = TypP (constr t) in
+      (pointer_constructor, i) }
+  | LPAR var = vardesc RPAR
+    { var }
+  | var = vardesc LBRACKET RBRACKET
+    { let (constr, i) = var in
+      let array_constructor t = TypA (constr t, None) in
+      (array_constructor, i) }
+  | var = vardesc LBRACKET n = LINT RBRACKET
+    { let (constr, i) = var in
+      let array_constructor t = TypA (constr t, Some n) in
+      (array_constructor, i) }
+;
+
+ctype:
+  | INT
+    { TypI }
+  | BOOL
+    { TypB }
+  | CHAR
+    { TypC }
+  | VOID
+    { TypV }
 ;
 
 expression:
