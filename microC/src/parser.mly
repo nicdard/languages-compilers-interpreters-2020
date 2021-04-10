@@ -74,18 +74,33 @@ fundecl:
     { make_annotated_node (Fundecl { typ; fname; formals; body }) $loc }
 
 block:
-  | LBRACE declarations = list(localvar) RBRACE
+  | LBRACE declarations = list(stmtordec) RBRACE
     { make_annotated_node (Block declarations) $loc }
+;
+
+stmtordec:
+  | s = stmt
+    { make_annotated_node (Stmt s) $loc }
+  | dec = localvar
+    { dec }
+;
+
+stmt:
+  | e = expression SEMICOLON
+    { make_annotated_node (Expr e) $loc }
+;
 
 topvardecl:
   | v = vardecl SEMICOLON
     { let (typ, id) = v in
       make_annotated_node (Vardec (typ, id)) $loc }
+;
 
 localvar:
   | v = vardecl SEMICOLON
     { let (typ, id) = v in
       make_annotated_node (Dec (typ, id)) $loc }
+;
 
 vardecl:
   | t = ctype var = vardesc
@@ -124,6 +139,13 @@ ctype:
 ;
 
 expression:
+  | e = lexpression 
+    { make_annotated_node (Access e) $loc }
+  | e = rexpression
+    { e }
+;
+
+rexpression:
   | l = literal
     { l }
   | u = unary
@@ -132,10 +154,38 @@ expression:
     { b }
   | g = grouping
     { g }
+  | a = assign
+    { a }
+  | a = address
+    { a }
 ;
 
+lexpression:
+  | id = LID
+    { make_annotated_node (AccVar id) $loc }
+  | LPAR lvalue = lexpression RPAR
+    { lvalue }
+  | STAR lvalue = lexpression
+    { let access = make_annotated_node (Access lvalue) $loc in
+      make_annotated_node (AccDeref access) $loc }
+  | STAR n = nullptr
+    { make_annotated_node (AccDeref n) $loc }
+  | STAR a = address
+    { make_annotated_node (AccDeref a) $loc }
+  | arr = lexpression LBRACKET index = expression RBRACKET
+    { make_annotated_node (AccIndex (arr, index)) $loc }
+;
+
+address:
+  | ADDRESS lvalue = lexpression
+    { make_annotated_node (Addr lvalue) $loc }
+
+assign:
+  | lhs = lexpression ASSIGN rvalue = expression
+    { make_annotated_node (Assign (lhs, rvalue)) $loc }
+
 grouping:
-  | LPAR e = expression RPAR
+  | LPAR e = rexpression RPAR
     { e }
 ;
 
@@ -184,6 +234,11 @@ literal:
     { make_annotated_node (BLiteral true) $loc }
   | FALSE
     { make_annotated_node (BLiteral false) $loc }
+  | n = nullptr
+    { n }
+;
+
+nullptr:
   | NULL // Zero is an invalid value for a pointer, here we use the definition from stdlib.h
     { make_annotated_node (ILiteral 0) $loc }
 ;
