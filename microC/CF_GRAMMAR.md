@@ -1,8 +1,29 @@
 # Context Free Grammar for MicroC
 
-## Expressions
+```
+program ::=
+    | topdecl* EOF
 
-expression ::= 
+topdecl ::=
+    | vardecl SEMICOLON
+
+vardecl ::=
+    | type vardesc
+
+vardesc ::= 
+    | LID
+    | STAR vardesc
+    | LPAR vardesc RPAR
+    | vardesc LBRACKET RBRACKET // should not be possible in top declarations 
+    | vardesc LBRACKET LINT RBRACKET
+
+type ::=
+    | INT
+    | CHAR
+    | BOOL
+    | VOID
+
+expression ::=
     | literal
     | unary
     | binary
@@ -38,3 +59,4 @@ operator ::=
     | STAR
     | DIV
     | MOD 
+```
