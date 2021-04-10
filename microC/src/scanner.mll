@@ -116,16 +116,16 @@ rule token = parse
         make_token RPAR lexbuf 
     }
     | '[' {
-        make_token LPAR lexbuf 
+        make_token LBRACKET lexbuf 
     }
     | ']' {
-        make_token RPAR lexbuf 
+        make_token RBRACKET lexbuf 
     }
     | '{' {
-        make_token LPAR lexbuf 
+        make_token LBRACE lexbuf 
     }
     | '}' {
-        make_token RPAR lexbuf 
+        make_token RBRACE lexbuf 
     }
     | ';' {
         make_token SEMICOLON lexbuf
