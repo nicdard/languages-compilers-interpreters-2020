@@ -101,10 +101,13 @@ stmt:
     { make_annotated_node (While (guard, body)) $loc }
   | FOR LPAR init = option(expression) SEMICOLON g = option(expression) SEMICOLON incr = option(expression) RPAR body = stmt
     { let true_lit = make_annotated_node (BLiteral true) $loc in
-      let true_expr = make_annotated_node (Expr true_lit) $loc in
-      let init_expr = make_annotated_node (Expr (Option.value init ~default:true_lit)) $loc in
-      let init_stmt = make_annotated_node (Stmt init_expr) $loc in
-      let incr_stmt = make_annotated_node (Stmt true_expr) $loc in
+      let empty_block = make_annotated_node (Block []) $loc in
+      let expr_or_empty_block e = Option.value 
+        (Option.map (fun e -> make_annotated_node (Expr e) $loc) e) 
+        ~default:empty_block 
+      in
+      let init_stmt = make_annotated_node (Stmt (expr_or_empty_block init)) $loc in
+      let incr_stmt = make_annotated_node (Stmt (expr_or_empty_block incr)) $loc in
       let body_stmt = make_annotated_node (Stmt body) $loc in
       let for_body = make_annotated_node (Block [body_stmt; incr_stmt]) $loc in
       let guard = Option.value g ~default:true_lit in
