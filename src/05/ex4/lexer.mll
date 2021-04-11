@@ -48,7 +48,7 @@ let create_hashtable size init =
     tbl
 
 let keyword_table =
-    create_hashtable 6 [
+    create_hashtable 8 [
         ("else", ELSE);
         ("false", FALSE);
         ("fun", FUN);
